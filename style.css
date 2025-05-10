@@ -97,14 +97,14 @@ h2 {
     list-style: none;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
 }
 
 .hiking-item {
     background: #fff;
-    padding: 12px;
-    margin-bottom: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     border: 1px solid #e0e6ed;
