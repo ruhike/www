@@ -56,32 +56,29 @@ h1 {
     color: #00008B;
     background: linear-gradient(to right, #00008B, #3498db);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-size: 1.6em;
 }
 
 h2 {
     color: #2ecc71;
     background: linear-gradient(to right, #2ecc71, #3498db);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-size: 1.3em;
 }
 
 h3 {
     color: #e74c3c;
     background: linear-gradient(to right, #e74c3c, #f39c12);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-h1 {
-    font-size: 1.6em;
-}
-
-h2 {
-    font-size: 1.3em;
-}
-
-h3 {
+    color: transparent;
     font-size: 1.1em;
 }
 
@@ -104,9 +101,6 @@ h3 {
     transition: all 0.3s ease;
     flex: 1 1 120px;
     text-align: center;
-}
-
-.province-item, .city-item, .county-item {
     a {
         color: #0066cc;
         text-decoration: none;
@@ -130,17 +124,16 @@ h3 {
     list-style: none;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 15px;
 }
 
 .hiking-item {
     background: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border: 1px solid #e0e6ed;
     transition: all 0.3s ease;
     
     &:hover {
@@ -159,7 +152,7 @@ h3 {
 .hike-header h3 {
     margin: 0 0 10px 0;
     color: #2d3748;
-    font-size: 1.4em;
+    font-size: 1.5em;
 }
 
 .hike-meta {
@@ -171,24 +164,44 @@ h3 {
 }
 
 .hike-details {
-    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    line-height: 1.1;
+}
+
+@media (max-width: 768px) {
+    .hike-header {
+        flex-direction: column;
+    }
+    
+    .hike-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .hike-details p {
+        margin: 12px 0;
+    }
+    
+    .hike-links {
+        flex-direction: column;
+    }
 }
 
 .hike-details p {
     margin: 8px 0;
+    width: 100%;
 }
 
 .hike-intro {
-    margin: 15px 0;
-    padding: 10px;
-    background: #f8fafc;
-    border-radius: 6px;
-    font-style: italic;
+    margin: 8px 0;
+    width: 100%;
 }
 
 .hike-food {
-    color: #718096;
-    font-size: 0.9em;
+    margin: 8px 0;
+    width: 100%;
 }
 
 .hike-links {
@@ -204,7 +217,7 @@ h3 {
     border-radius: 4px;
     color: #4a5568;
     text-decoration: none;
-    font-size: 0.85em;
+    font-size: 0.9em;
     transition: all 0.2s ease;
 }
 
@@ -230,18 +243,33 @@ h3 {
 
 /* 海拔数据样式 */
 .elevation-max {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.elevation-ascent-low {
+    color: #4ecdc4;
+    font-weight: bold;
+}
+
+.elevation-ascent-medium {
+    color: #feca57;
+    font-weight: bold;
+}
+
+.elevation-ascent-high {
     color: #ff6b6b;
     font-weight: bold;
 }
 
 .elevation-ascent {
-    color: #4ecdc4;
-    font-weight: bold;
+    font-weight: 500;
+    color: #e74c3c;
 }
 
 .elevation-descent {
-    color: #ff9f43;
-    font-weight: bold;
+    font-weight: 500;
+    color: #2ecc71;
 }
 
 /* 长度和耗时样式 */
@@ -277,9 +305,38 @@ h3 {
 
 /* 难度星级样式 */
 .difficulty-stars {
-    color: #feca57;
-    font-size: 1.2em;
+    font-size: 1em;
     letter-spacing: 2px;
+    text-decoration: none;
+    border-bottom: none;
+}
+
+.difficulty-1 {
+    color: #FF0000; /* 红 */
+}
+
+.difficulty-2 {
+    color: #ff8000; /* 橙 */
+}
+
+.difficulty-3 {
+    color: #e5d200; /* 亮黄 */
+}
+
+.difficulty-4 {
+    color: #138e00; /* 暗绿 */
+}
+
+.difficulty-5 {
+    color: #005279; /* 青 */
+}
+
+.difficulty-6 {
+    color: #1500ff; /* 蓝 */
+}
+
+.difficulty-7 {
+    color: #8c00ff; /* 紫 */
 }
 
 /* 新增数字颜色样式 */
