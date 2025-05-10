@@ -42,6 +42,7 @@ function init() {
                 if(!Array.isArray(allHikings)) allHikings = [];
                 const existingIds = new Set(allHikings.map(h => h && h.name));
                 const newHikings = hikings.filter(h => h && h.name && !existingIds.has(h.name));
+                
                 allHikings = allHikings.concat(newHikings);
             }
         }
@@ -132,7 +133,7 @@ function renderProvinces() {
     if (randomHikings && randomHikings.length > 0) {
         const randomSection = document.createElement('div');
         randomSection.className = 'random-hikings';
-        randomSection.innerHTML = '<h3><br>如烟霞路凭虚度，野雾藏山万壑幽。道友，请...<br></h3><ul class="hiking-list"></ul>';
+        randomSection.innerHTML = '<br><ul class="hiking-list"></ul>';
         contentEl.appendChild(randomSection);
         
         const listEl = randomSection.querySelector('ul');
@@ -199,7 +200,7 @@ function renderCities(province) {
     if (randomHikings && randomHikings.length > 0) {
         const randomSection = document.createElement('div');
         randomSection.className = 'random-hikings';
-        randomSection.innerHTML = `<h3><br>${province}推荐线路</h3><ul class="hiking-list"></ul>`;
+        randomSection.innerHTML = `<br><ul class="hiking-list"></ul>`;
         contentEl.appendChild(randomSection);
         
         const listEl = randomSection.querySelector('ul');
@@ -260,7 +261,7 @@ function renderCounties(province, city) {
     if (randomHikings && randomHikings.length > 0) {
         const randomSection = document.createElement('div');
         randomSection.className = 'random-hikings';
-        randomSection.innerHTML = `<h3><br>${city}推荐线路</h3><ul class="hiking-list"></ul>`;
+        randomSection.innerHTML = `<br><ul class="hiking-list"></ul>`;
         contentEl.appendChild(randomSection);
         
         const listEl = randomSection.querySelector('ul');
@@ -332,6 +333,7 @@ function renderHikings(province, city, county) {
             <span>长度: <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span>
             <span>耗时: <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span>
             <p><span><strong>难度:</strong> <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></span></p>
+
         </div>
     </div>
     <div class="hike-details">
@@ -383,6 +385,30 @@ function setupSearch() {
 }
 
 // 渲染搜索结果
+function likeHiking(hikingName) {
+    const hiking = allHikings.find(h => h.name === hikingName);
+    if (hiking) {
+        hiking.likes = (hiking.likes || 0) + 1;
+        // 调用API保存点赞数据
+        fetch('/api/likes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                hikingName: hikingName,
+                likes: hiking.likes
+            })
+        }).catch(err => console.error('保存点赞失败:', err));
+        // 重新渲染当前视图
+        if (currentPath.length === 3) {
+            renderHikings(currentPath[0].name, currentPath[1].name, currentPath[2].name);
+        } else {
+            renderProvinces();
+        }
+    }
+}
+
 function renderSearchResults(results) {
     contentEl.innerHTML = `<h2>搜索结果</h2><ul class="hiking-list"></ul>`;
     
@@ -397,6 +423,7 @@ function renderSearchResults(results) {
             <span>长度: <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span>
             <span>耗时: <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span>
             <span>难度: <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></span>
+
         </div>
     </div>
     <div class="hike-details">
