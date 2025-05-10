@@ -343,10 +343,10 @@ function renderHikings(province, city, county) {
         <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
         <p class="hike-food"><strong>美食:</strong> ${hiking.food.join(', ')}</p>
         <div class="hike-links">
-            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路轨迹下载</a>
-            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音</a>
-            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书</a>
-            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩</a>
+            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
+            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
+            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书${hiking.name}分享</a>
+            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩${hiking.name}视频</a>
         </div>
     </div>
 `;
@@ -408,10 +408,10 @@ function renderSearchResults(results) {
         <p class="hike-intro">${hiking.intro}</p>
         <p class="hike-food"><strong>特色美食:</strong> ${hiking.food.join(', ')}</p>
         <div class="hike-links">
-            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路轨迹</a>
-            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音视频</a>
-            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书</a>
-            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩</a>
+            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
+            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
+            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书${hiking.name}分享</a>
+            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩${hiking.name}视频</a>
         </div>
     </div>
 `;
