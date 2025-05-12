@@ -382,7 +382,7 @@ function setupSearch() {
 
 
 function renderSearchResults(results) {
-    contentEl.innerHTML = `<h2>道友，你是要去这里历练么？</h2><ul class="hiking-list"></ul>`;
+    contentEl.innerHTML = `<h2>道友可是要去历练？</h2><ul class="hiking-list"></ul>`;
     
     const listEl = contentEl.querySelector('ul');
     results.forEach(hiking => {
