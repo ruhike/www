@@ -354,7 +354,7 @@ function renderHikingList(hikings, title) {
 function setupSearch() {
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.toLowerCase().trim();
-        if (query.length < 2) return;
+        if (query.length < 1) return;
         
         console.log('Search query:', query);
         console.log('Total hikings:', allHikings.length);
@@ -382,7 +382,7 @@ function setupSearch() {
 
 
 function renderSearchResults(results) {
-    contentEl.innerHTML = `<h2>搜索结果</h2><ul class="hiking-list"></ul>`;
+    contentEl.innerHTML = `<h2>道友，你是要去这里历练么？</h2><ul class="hiking-list"></ul>`;
     
     const listEl = contentEl.querySelector('ul');
     results.forEach(hiking => {
