@@ -378,7 +378,7 @@ function setupSearch() {
 
 
 function renderSearchResults(results) {
-    contentEl.innerHTML = `<h2>道友可是要去历练？</h2><ul class="hiking-list"></ul>`;
+    contentEl.innerHTML = `<h2>可有合道友心意处？</h2><ul class="hiking-list"></ul>`;
     
     // 按爬升高度从高到低排序
     const sortedResults = [...results].sort((a, b) => b.elevation.ascent - a.elevation.ascent);
