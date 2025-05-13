@@ -146,8 +146,18 @@ function getRandomHikingsByArea(province, city, county, count = 7) {
         hikings = allHikings;
     }
     
-    // 随机排序并返回指定数量的线路
-    return [...hikings].sort(() => 0.5 - Math.random()).slice(0, count);
+    // Fisher-Yates洗牌算法高效随机选取
+    const result = [];
+    const len = hikings.length;
+    const n = Math.min(count, len);
+    
+    for (let i = 0; i < n; i++) {
+        const j = Math.floor(Math.random() * (len - i)) + i;
+        [hikings[i], hikings[j]] = [hikings[j], hikings[i]];
+        result.push(hikings[i]);
+    }
+    
+    return result;
 }
 
 function renderProvinces() {
@@ -311,6 +321,26 @@ function renderSearchResults(results) {
     return renderHikingList(results, '搜索结果');
 }
 
+function createHikingDetails(hiking) {
+    return `
+    <div class="hike-details">
+        <h3>${hiking.name}</h3>
+        <p><strong><span>长度:</strong> <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span> <strong><span>耗时:</strong> <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span></p>
+        <p><strong>难度:</strong> <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></p>
+        <p><strong>起点:</strong> ${hiking.startPoint} <strong>终点:</strong> ${hiking.endPoint}</p>
+        <p><strong>海拔:</strong> 最高<span class="elevation-max elevation-max-value">${hiking.elevation.max}</span>米, 爬升<span class="elevation-ascent elevation-ascent-value">${hiking.elevation.ascent}</span>米, 下降<span class="elevation-descent elevation-descent-value">${hiking.elevation.descent}</span>米</p>
+        <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
+        <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
+        <div class="hike-links">
+            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
+            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
+            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书${hiking.name}分享</a>
+            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩${hiking.name}视频</a>
+        </div>
+    </div>
+    `;
+}
+
 function renderHikingList(hikings, title) {
     contentEl.innerHTML = `<ul class="hiking-list"></ul>`;
     
@@ -327,23 +357,7 @@ function renderHikingList(hikings, title) {
     hikings.forEach(hiking => {
         const itemEl = document.createElement('li');
         itemEl.className = 'hiking-item hike-item';
-        itemEl.innerHTML = `
-    <div class="hike-details">
-        <h3>${hiking.name}</h3>
-        <p><strong><span>长度:</strong> <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span> <strong><span>耗时:</strong> <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span></p>
-        <p><strong>难度:</strong> <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></p>
-        <p><strong>起点:</strong> ${hiking.startPoint} <strong>终点:</strong> ${hiking.endPoint}</p>
-        <p><strong>海拔:</strong> 最高<span class="elevation-max elevation-max-value">${hiking.elevation.max}</span>米, 爬升<span class="elevation-ascent elevation-ascent-value">${hiking.elevation.ascent}</span>米, 下降<span class="elevation-descent elevation-descent-value">${hiking.elevation.descent}</span>米</p>
-        <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
-        <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
-        <div class="hike-links">
-            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
-            <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
-            <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书${hiking.name}分享</a>
-            <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩${hiking.name}视频</a>
-        </div>
-    </div>
-`;
+        itemEl.innerHTML = createHikingDetails(hiking);
         listEl.appendChild(itemEl);
     });
 }
