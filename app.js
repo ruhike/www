@@ -32,7 +32,9 @@ function getDifficultyStars(ascent) {
     const solidStar = '★';
     // 每500米爬升对应1颗星，最高7颗星
     const level = Math.min(Math.floor(ascent / 500) + 1, 7);
-    return `<span class="difficulty-${level}">${solidStar.repeat(level)}${'☆'.repeat(7 - level)}</span>`;
+    const levelNames = ['凝气小友', '筑基道友', '结丹道友', '元婴前辈', '化神长老', '婴变老祖', '问鼎老怪'];
+    const levelColors = ['#红', '#橙', '#黄', '#绿', '#青', '#蓝', '#紫'];
+    return `<span class="difficulty-${level}" style="color:${levelColors[level-1]};">${solidStar.repeat(level)}${'☆'.repeat(7 - level)} ${levelNames[level-1]}的${level}星${levelColors[level-1].replace('#','')}线</span>`;
 }
 
 // 创建徒步线路项
@@ -300,7 +302,7 @@ function selectCounty(province, city, county) {
     renderBreadcrumb();
 }
 
-// 渲染建筑列表
+// 渲染线路列表
 function renderHikings(province, city, county) {
     return renderHikingList(provincesData[province][city][county], `${province} - ${city} - ${county}`);
 }
@@ -328,16 +330,12 @@ function renderHikingList(hikings, title) {
         itemEl.innerHTML = `
     <div class="hike-details">
         <h3>${hiking.name}</h3>
-        <p><strong><span>长度:</strong> <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span></p>
-        <p><strong><span>耗时:</strong> <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span></p>
+        <p><strong><span>长度:</strong> <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span> <strong><span>耗时:</strong> <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span></p>
         <p><strong>难度:</strong> <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></p>
-        <p><strong>起点:</strong> ${hiking.startPoint}</p>
-        <p><strong>终点:</strong> ${hiking.endPoint}</p>
-        <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
-        <p><strong>补给点:</strong> ${hiking.supplyPoints.join(', ')}</p>
+        <p><strong>起点:</strong> ${hiking.startPoint} <strong>终点:</strong> ${hiking.endPoint}</p>
         <p><strong>海拔:</strong> 最高<span class="elevation-max elevation-max-value">${hiking.elevation.max}</span>米, 爬升<span class="elevation-ascent elevation-ascent-value">${hiking.elevation.ascent}</span>米, 下降<span class="elevation-descent elevation-descent-value">${hiking.elevation.descent}</span>米</p>
+        <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
         <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
-        <p class="hike-food"><strong>美食:</strong> ${hiking.food.join(', ')}</p>
         <div class="hike-links">
             <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
             <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
@@ -365,9 +363,7 @@ function setupSearch() {
                 hiking.intro.toLowerCase().includes(query) ||
                 hiking.startPoint.toLowerCase().includes(query) ||
                 hiking.endPoint.toLowerCase().includes(query) ||
-                (hiking.waypoints && hiking.waypoints.some(wp => wp.toLowerCase().includes(query))) ||
-                (hiking.supplyPoints && hiking.supplyPoints.some(sp => sp.toLowerCase().includes(query))) ||
-                (hiking.food && hiking.food.some(f => f.toLowerCase().includes(query)))
+                (hiking.waypoints && hiking.waypoints.some(wp => wp.toLowerCase().includes(query)))
             );
             if(match) console.log('Matched hiking:', hiking.name);
             return match;
@@ -384,8 +380,11 @@ function setupSearch() {
 function renderSearchResults(results) {
     contentEl.innerHTML = `<h2>道友可是要去历练？</h2><ul class="hiking-list"></ul>`;
     
+    // 按爬升高度从高到低排序
+    const sortedResults = [...results].sort((a, b) => b.elevation.ascent - a.elevation.ascent);
+    
     const listEl = contentEl.querySelector('ul');
-    results.forEach(hiking => {
+    sortedResults.forEach(hiking => {
         const itemEl = document.createElement('li');
         itemEl.className = 'hiking-item hike-item';
         itemEl.innerHTML = `

@@ -199,11 +199,6 @@ h3 {
     width: 100%;
 }
 
-.hike-food {
-    margin: 8px 0;
-    width: 100%;
-}
-
 .hike-links {
     margin-top: 15px;
     display: flex;
@@ -320,7 +315,7 @@ h3 {
 }
 
 .difficulty-3 {
-    color: #e5d200; /* 亮黄 */
+    color: #c0b000; /* 暗黄 */
 }
 
 .difficulty-4 {
