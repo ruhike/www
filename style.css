@@ -237,6 +237,21 @@ h3 {
 }
 
 /* 海拔数据样式 */
+.elevation-max-low {
+    color: #4ecdc4;
+    font-weight: bold;
+}
+
+.elevation-max-medium {
+    color: #feca57;
+    font-weight: bold;
+}
+
+.elevation-max-high {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
 .elevation-max {
     font-weight: 500;
     color: #4a5568;

@@ -2,7 +2,8 @@
 const contentEl = document.getElementById('content');
 const searchInput = document.querySelector('.search-box input');
 let currentPath = [];
-let allHikings = []; // 存储所有徒步线路数据
+let allHikings = [];
+const hikingIndex = new Map(); // 新增索引映射
 
 // 根据长度值返回样式类
 function getLengthClass(length) {
@@ -24,6 +25,13 @@ function getTimeClass(time) {
 function getAscentClass(ascent) {
     if (ascent < 1000) return 'low';
     if (ascent < 2000) return 'medium';
+    return 'high';
+}
+
+// 根据最高海拔值返回样式类
+function getMaxClass(max) {
+    if (max < 1000) return 'low';
+    if (max < 2000) return 'medium';
     return 'high';
 }
 
@@ -59,16 +67,24 @@ function init() {
     renderProvinces();
     setupSearch();
     
-    // 初始化时加载所有徒步线路数据
+    // 初始化数据并建立索引
     for (const province in provincesData) {
         for (const city in provincesData[province]) {
             for (const county in provincesData[province][city]) {
                 const hikings = provincesData[province][city][county];
-                if(!Array.isArray(allHikings)) allHikings = [];
-                const existingIds = new Set(allHikings.filter(h => h && h.name).map(h => h.name));
-                const newHikings = hikings.filter(h => h && h.name && !existingIds.has(h.name));
+                hikings.forEach(hiking => {
+                    if (hiking?.name) {
+                        hikingIndex.set(hiking.name, {
+                            province,
+                            city,
+                            county,
+                            ...hiking
+                        });
+                    }
+                });
                 
-                allHikings = allHikings.concat(newHikings);
+                if(!Array.isArray(allHikings)) allHikings = [];
+                allHikings = allHikings.concat(hikings);
             }
         }
     }
@@ -160,52 +176,54 @@ function getRandomHikingsByArea(province, city, county, count = 7) {
     return result;
 }
 
+// 通用随机线路渲染函数
+function renderRandomHikings(hikings, container) {
+    const fragment = document.createDocumentFragment();
+    hikings.forEach(hiking => {
+        const itemEl = createHikingItem(hiking);
+        fragment.appendChild(itemEl);
+    });
+    container.appendChild(fragment);
+}
+
+// 统一路径更新函数
+function updateCurrentPath(...pathEntries) {
+    currentPath = pathEntries.filter(Boolean);
+    renderBreadcrumb();
+    const currentRenderer = {
+        0: renderProvinces,
+        1: () => renderCities(currentPath[0].name),
+        2: () => renderCounties(currentPath[0].name, currentPath[1].name),
+        3: () => renderHikings(...currentPath.map(p => p.name))
+    }[currentPath.length] || renderProvinces;
+    currentRenderer();
+}
+
 function renderProvinces() {
     renderItems(provincesData, '', 'province-item', 'selectProvince');
     
-    // 显示7条全国随机线路
     const randomHikings = getRandomHikingsByArea();
-    if (randomHikings && randomHikings.length > 0) {
-        const randomSection = document.createElement('div');
-        randomSection.className = 'random-hikings';
-        randomSection.innerHTML = '<br><ul class="hiking-list"></ul>';
-        contentEl.appendChild(randomSection);
+    if (randomHikings?.length) {
+        const section = document.createElement('div');
+        section.className = 'random-hikings';
+        section.innerHTML = '<br><ul class="hiking-list"></ul>';
+        contentEl.appendChild(section);
         
-        const listEl = randomSection.querySelector('ul');
-        randomHikings.forEach(hiking => {
-            const itemEl = createHikingItem(hiking);
-            itemEl.onclick = () => {
-                const province = hiking.province || Object.keys(provincesData).find(p => 
-                    Object.keys(provincesData[p]).some(c => 
-                        Object.keys(provincesData[p][c]).some(co => 
-                            provincesData[p][c][co].some(h => h.name === hiking.name)
-                        )
-                    )
+        // 使用事件委托
+        section.querySelector('ul').addEventListener('click', e => {
+            const itemEl = e.target.closest('.hiking-item');
+            if (itemEl) {
+                const hikingName = itemEl.querySelector('h4').textContent;
+                const info = hikingIndex.get(hikingName);
+                info && updateCurrentPath(
+                    { type: 'province', name: info.province },
+                    { type: 'city', name: info.city },
+                    { type: 'county', name: info.county }
                 );
-                if (province) {
-                    const city = hiking.city || Object.keys(provincesData[province]).find(c => 
-                        Object.keys(provincesData[province][c]).some(co => 
-                            provincesData[province][c][co].some(h => h.name === hiking.name)
-                        )
-                    );
-                    if (city) {
-                        const county = hiking.county || Object.keys(provincesData[province][city]).find(co => 
-                            provincesData[province][city][co].some(h => h.name === hiking.name)
-                        );
-                        if (county) {
-                            currentPath = [
-                                { type: 'province', name: province },
-                                { type: 'city', name: city },
-                                { type: 'county', name: county }
-                            ];
-                            renderHikings(province, city, county);
-                            renderBreadcrumb();
-                        }
-                    }
-                }
-            };
-            listEl.appendChild(itemEl);
+            }
         });
+        
+        renderRandomHikings(randomHikings, section.querySelector('ul'));
     }
 }
 
@@ -220,40 +238,27 @@ function selectProvince(province) {
 function renderCities(province) {
     renderItems(provincesData[province], `${province} - 市级行政区`, 'city-item', `selectCity.bind(null, '${province}')`);
     
-    // 显示该省7条随机线路
     const randomHikings = getRandomHikingsByArea(province);
-    if (randomHikings && randomHikings.length > 0) {
-        const randomSection = document.createElement('div');
-        randomSection.className = 'random-hikings';
-        randomSection.innerHTML = `<br><ul class="hiking-list"></ul>`;
-        contentEl.appendChild(randomSection);
-        
-        const listEl = randomSection.querySelector('ul');
-        randomHikings.forEach(hiking => {
-            const itemEl = createHikingItem(hiking);
-            itemEl.onclick = () => {
-                const city = hiking.city || Object.keys(provincesData[province]).find(c => 
-                    Object.keys(provincesData[province][c]).some(co => 
-                        provincesData[province][c][co].some(h => h.name === hiking.name)
-                    )
+    if (randomHikings?.length) {
+        const section = document.createElement('div');
+        section.className = 'random-hikings';
+        section.innerHTML = '<br><ul class="hiking-list"></ul>';
+        contentEl.appendChild(section);
+
+        section.querySelector('ul').addEventListener('click', e => {
+            const itemEl = e.target.closest('.hiking-item');
+            if (itemEl) {
+                const hikingName = itemEl.querySelector('h4').textContent;
+                const info = hikingIndex.get(hikingName);
+                info && updateCurrentPath(
+                    { type: 'province', name: info.province },
+                    { type: 'city', name: info.city },
+                    { type: 'county', name: info.county }
                 );
-                if (city) {
-                    const county = hiking.county || Object.keys(provincesData[province][city]).find(co => 
-                        provincesData[province][city][co].some(h => h.name === hiking.name)
-                    );
-                    if (county) {
-                        currentPath = [
-                            { type: 'province', name: province },
-                            { type: 'city', name: city },
-                            { type: 'county', name: county }
-                        ];
-                        renderHikings(province, city, county);
-                        renderBreadcrumb();
-                    }
-                }
-            };
-            listEl.appendChild(itemEl);
+            }
         });
+
+        renderRandomHikings(randomHikings, section.querySelector('ul'));
     }
 }
 
@@ -328,7 +333,7 @@ function createHikingDetails(hiking) {
         <p><strong><span>长度:</strong> <span class="length-${getLengthClass(hiking.length)} length-value">${hiking.length}</span></span> <strong><span>耗时:</strong> <span class="time-${getTimeClass(hiking.time)} time-value">${hiking.time}</span></span></p>
         <p><strong>难度:</strong> <span class="difficulty-stars difficulty-value">${getDifficultyStars(hiking.elevation.ascent)}</span></p>
         <p><strong>起点:</strong> ${hiking.startPoint} <strong>终点:</strong> ${hiking.endPoint}</p>
-        <p><strong>海拔:</strong> 最高<span class="elevation-max elevation-max-value">${hiking.elevation.max}</span>米, 爬升<span class="elevation-ascent elevation-ascent-value">${hiking.elevation.ascent}</span>米, 下降<span class="elevation-descent elevation-descent-value">${hiking.elevation.descent}</span>米</p>
+        <p><strong>海拔:</strong> 最高<span class="elevation-max-${getMaxClass(hiking.elevation.max)} elevation-max-value">${hiking.elevation.max}</span>米, 爬升<span class="elevation-ascent elevation-ascent-value">${hiking.elevation.ascent}</span>米, 下降<span class="elevation-descent elevation-descent-value">${hiking.elevation.descent}</span>米</p>
         <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
         <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
         <div class="hike-links">
@@ -394,54 +399,22 @@ function setupSearch() {
 function renderSearchResults(results) {
     contentEl.innerHTML = `<h2>可有合道友心意处？</h2><ul class="hiking-list"></ul>`;
     
-    // 按爬升高度从高到低排序
-    const sortedResults = [...results].sort((a, b) => b.elevation.ascent - a.elevation.ascent);
-    
     const listEl = contentEl.querySelector('ul');
-    sortedResults.forEach(hiking => {
-        const itemEl = document.createElement('li');
-        itemEl.className = 'hiking-item hike-item';
-        itemEl.innerHTML = `
-            <div class="hike-meta">
-                <h4>${hiking.name}</h4>
-                    <span>长度: <span class="length-${getLengthClass(hiking.length)}">${hiking.length}</span></span>
-                    <span>爬升: <span class="elevation-ascent-${getAscentClass(hiking.elevation.ascent)}">${hiking.elevation.ascent}米</span></span>
-                    <span>难度: <span class="difficulty-stars">${getDifficultyStars(hiking.elevation.ascent)}</span></span>
-                    ${hiking.intro}
-            </div>
-        `;
-        itemEl.onclick = () => {
-            const province = hiking.province || Object.keys(provincesData).find(p => 
-                Object.keys(provincesData[p]).some(c => 
-                    Object.keys(provincesData[p][c]).some(co => 
-                        provincesData[p][c][co].some(h => h.name === hiking.name)
-                    )
-                )
+    listEl.addEventListener('click', e => {
+        const itemEl = e.target.closest('.hiking-item');
+        if (itemEl) {
+            const hikingName = itemEl.querySelector('h4').textContent;
+            const info = hikingIndex.get(hikingName);
+            info && updateCurrentPath(
+                { type: 'province', name: info.province },
+                { type: 'city', name: info.city },
+                { type: 'county', name: info.county }
             );
-            if (province) {
-                const city = hiking.city || Object.keys(provincesData[province]).find(c => 
-                    Object.keys(provincesData[province][c]).some(co => 
-                        provincesData[province][c][co].some(h => h.name === hiking.name)
-                    )
-                );
-                if (city) {
-                    const county = hiking.county || Object.keys(provincesData[province][city]).find(co => 
-                        provincesData[province][city][co].some(h => h.name === hiking.name)
-                    );
-                    if (county) {
-                        currentPath = [
-                            { type: 'province', name: province },
-                            { type: 'city', name: city },
-                            { type: 'county', name: county }
-                        ];
-                        renderHikings(province, city, county);
-                        renderBreadcrumb();
-                    }
-                }
-            }
-        };
-        listEl.appendChild(itemEl);
+        }
     });
+
+    const sortedResults = [...results].sort((a, b) => b.elevation.ascent - a.elevation.ascent);
+    renderRandomHikings(sortedResults, listEl);
 }
 
 // 启动应用
