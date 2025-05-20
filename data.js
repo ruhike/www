@@ -419,6 +419,52 @@ const provincesData = {
             '普陀区(朱家尖)': [
                 {name: '朱家尖白山月岙穿越', length: '7.04公里', time: '3-4小时', startPoint: '香莲岭下', endPoint: '印象普陀剧场', waypoints: ['卧龙洞','孤帆石','清凉洞','木鱼石','天险石','说法台','天缝台','樟树林','西天门','观音跳'], elevation: {max: 126, ascent: 277, descent: 277}, intro: '舟山最美石景线路，需在礁石间攀爬穿越，含"苗条三关"险径'}
             ]
+        },
+        '台州市': {
+            '黄岩区(划岩山)': [
+                {name: '划岩山飞鹰道', length: '7.85公里', time: '5小时', startPoint: '溪上村', endPoint: '三屯村', waypoints: ['迷魂十八谷','通天洞铁梯','水帘瀑','飞鹰道挂壁路','裂谷群','将军岩','望夫岩','古屯兵洞'], elevation: {max: 520, ascent: 450, descent: 450}, intro: '废弃景区探险路线，含百米悬崖栈道与垂直铁梯攀爬'},
+                {name: '义城岭古道', length: '8.68公里', time: '4小时', startPoint: '北洋镇联丰村', endPoint: '尤溪镇义城村', waypoints: ['茶亭山遗址','枫树群','古路廊','银安桥','猢狲岭','潮济古街','头陀桥','胡村岭'], elevation: {max: 300, ascent: 400, descent: 350}, intro: '千年商贸驿道，秋日红枫长廊'},
+                {name: '黄岩九峰大师赛', length: '30公里', time: '8小时', startPoint: '九峰公园西大门', endPoint: '九峰公园', waypoints: ['药山村','常乐寺','唐家岙','老鼠沿杠','大短柱','跑马坪','摇铃岩','米筛浪'], elevation: {max: 577, ascent: 2079, descent: 2079}, intro: '技术型短距离越野赛道，下坡难度著称'}
+            ],
+            '温岭市(水桶岙)': [
+                {name: '水桶岙小环线', length: '7.6公里', time: '4-5小时', startPoint: '小交陈村停车场', endPoint: '小交陈村', waypoints: ['丰门岭观景台','大岩山山脊线','大象岩','网红石缝','白谷礁','水桶岙沙滩','神龟望月石','子鱼咀礁石区'], elevation: {max: 305, ascent: 260, descent: 260}, intro: '浙江版麦理浩径精华段，串联山脊线与U形海湾，含礁石穿越与沙滩路段'},
+                {name: '水桶岙大环线', length: '14公里', time: '6-7小时', startPoint: '小交陈村', endPoint: '小交陈村', waypoints: ['丰门岭','大岩山','白骨礁','厂门礁','石子湾沙滩','乌坑村废弃石屋','大平头观海平台','大坑沙秘境'], elevation: {max: 485, ascent: 500, descent: 500}, intro: '黄金海岸全景路线，途经3个隐世沙滩与绿野仙踪无人村'},
+                {name: '水桶岙穿越线', length: '20.58公里', time: '8-9小时', startPoint: '小交陈村', endPoint: '洞下沙滩', waypoints: ['丰门岭','大岩山脊线','乌坑村','大坑沙','松门绿道','炮台山烽火台','滨海栈道','珍珠滩'], elevation: {max: 485, ascent: 800, descent: 850}, intro: '温岭海岸线终极穿越，含60%原生态土路与360度观海平台'}
+            ],
+            '温岭市(石塘)': [
+                {name: '温岭黄金海岸跑山赛', length: '55公里', time: '12小时', startPoint: '石塘镇金沙滩', endPoint: '松门镇龙门沙滩', waypoints: ['千年曙光碑','三蒜岛礁石区','陈老大渔港','南炮台山','水桶岙CP点','乌坑村补给站','大坑沙礁石群','洞下沙滩终点'], elevation: {max: 450, ascent: 2800, descent: 2800}, intro: '中国大陆唯一沿海越野赛道，75%原生态土路，ITRA积分认证赛事'}
+            ],
+            '温岭市(太平双溪)': [
+                {name: '薄刀山斗米尖寒坑龙潭', length: '7.92公里', time: '5小时', startPoint: '白溪村', endPoint: '寒坑龙潭景区', waypoints: ['万金水库','斗米尖顶峰','骑马岭','猪姆栋','竹夹坑','龙挣岩','龙潭瀑布','白骨礁'], elevation: {max: 577, ascent: 600, descent: 600}, intro: '温岭第三高峰穿越线，含刀脊山径与溯溪路段'}
+            ],
+            '临海市(桃渚)': [
+                {name: '白岩山爱心环线', length: '10.61公里', time: '5小时', startPoint: '东连村村委会', endPoint: '东连村', waypoints: ['阿弥寺','白岩洞寺','净悟斋','仙人洞','白龙禅寺','杨府殿','童燎水库','古驿道'], elevation: {max: 380, ascent: 500, descent: 500}, intro: '爱心形状环线，含悬空寺与影视城景观'},
+                {name: '桃江十三渚', length: '15.65公里', time: '6小时', startPoint: '桃渚镇', endPoint: '石柱峰', waypoints: ['武坑象鼻岩','玉壶岩','二蛙登山','龙斩腰','珊瑚岩群','将军岩','火山博物馆','石柱峰观景台'], elevation: {max: 141, ascent: 500, descent: 500}, intro: '中国最美田园风光，亿年火山熔岩地貌'}
+            ],
+            '临海市(括苍山)': [
+                {name: '黄石坦括苍山', length: '14.33公里', time: '7小时', startPoint: '黄石坦村', endPoint: '括苍山米筛浪', waypoints: ['九台沟瀑布群','凤尾瀑','五峰竞秀','石门台','三十六口缸','跑马坪','曙光碑','风电场'], elevation: {max: 1382, ascent: 1200, descent: 600}, intro: '浙东南第一高峰穿越线，含火山岩峡谷与高山草甸'},
+                {name: '柴古唐斯', length: '105公里', time: '32小时', startPoint: '台州府城墙', endPoint: '括苍山森林公园', waypoints: ['紫阳古街','龙潭岙','道场基','跑马坪','米筛浪','贺家洞','黄家寮','法云寺'], elevation: {max: 1382, ascent: 6600, descent: 6400}, intro: '国内顶级越野赛事，ITRA/UTMB双积分认证'}
+            ],
+            '临海市(大雷山)': [
+                {name: '临海大雷山', length: '14.12公里', time: '6小时', startPoint: '荷叶湾村', endPoint: '跑马坪', waypoints: ['黄沙溪峡谷','江下古村','白岩下','林场防火道','石柱峰','梯田观景台','牛头岩','火山口遗迹'], elevation: {max: 1229, ascent: 1100, descent: 600}, intro: '临海天台仙居三界穿越线，龙脊地形显著'},
+                {name: '大雷山轻越野', length: '30公里', time: '10小时', startPoint: '白水洋镇荷叶湾村', endPoint: '白水洋镇官溪村', waypoints: ['杨家坪古道','半山水库','大屋基营地','防火道','茶辽林场','摇铃岩','主峰玛尼堆','小雷山'], elevation: {max: 1229, ascent: 1700, descent: 1700}, intro: '浙东南第二高峰赛道，含高山杜鹃花海与火山台地'}
+            ],
+            '天台县(天台山)': [
+                {name: '天台山霞客古道', length: '13.53公里', time: '6小时', startPoint: '天台县泳溪乡筋竹岭', endPoint: '临海市白水洋镇大泛村', waypoints: ['弥陀庵','天封寺','华顶讲寺','太白堂','拜经台','石梁飞瀑','铜壶滴漏','万年寺'], elevation: {max: 1098, ascent: 900, descent: 850}, intro: '《徐霞客游记》开篇之路，佛教天台宗圣迹串联'},
+                {name: '天台山脉大C线', length: '69.29公里', time: '24小时', startPoint: '宁海县西门', endPoint: '新昌县横渡村', waypoints: ['梁隍山','松门岭','王爱山','筋竹庵','南黄古道','天姥山','万马渡','桃源仙境'], elevation: {max: 1113, ascent: 4500, descent: 4400}, intro: '跨越三市县的史诗级穿越，含唐诗之路精华段'}
+            ],
+            '天台县(南屏)': [
+                {name: '天台紫凝山小环线', length: '7公里', time: '4小时', startPoint: '张家井村', endPoint: '易筋经风情小镇', waypoints: ['金鑫洞','龙母庙遗址','五福洞','仙人床','石骑人','观音峰','太极台','问道养生谷'], elevation: {max: 500, ascent: 400, descent: 400}, intro: '易筋经发源地，丹霞地貌与宗教文化结合'},
+                {name: '南黄古道', length: '12.67公里', time: '5-6小时', startPoint: '天台县南屏乡前杨村', endPoint: '临海市黄坦大泛村', waypoints: ['枫林音悦台','观音殿','外庵济公殿','永清寺','清枫叠影','红枫观景台','梯田摄影点','古驿道石碑'], elevation: {max: 700, ascent: 800, descent: 750}, intro: '宋代商贸古道，国内八大赏枫基地之一，串联万亩梯田与古寺遗址'}
+            ],
+            '仙居县(神仙居)': [
+                {name: '仙居公盂岩环线', length: '10.5公里', time: '5小时', startPoint: '前坑村', endPoint: '林坑村', waypoints: ['公盂背岩壁','公盂村梯田','小公盂尖','竹夹坑瀑布','旗杆岩','骆驼峰','小龙门','石盟垟村'], elevation: {max: 1150, ascent: 700, descent: 700}, intro: '华东香格里拉核心区，需绳攀公盂背岩壁'},
+                {name: '仙居饭蒸岩环线', length: '13.23公里', time: '6小时', startPoint: '万金村', endPoint: '万金村', waypoints: ['万金水库','饭公岩','饭婆岩','流云33壁画','西天门栈道','苍岩背','一线天','观音洞'], elevation: {max: 718, ascent: 850, descent: 850}, intro: '火山岩柱奇观环线，含岩壁攀爬段与悬空栈道'},
+                {name: '神仙居野环线', length: '20.31公里', time: '8小时', startPoint: '景区北门', endPoint: '景区南门', waypoints: ['问仙桥','卧龙潭','圆梦桥','佛祖峰','南天顶玻璃栈道','莲花台','蟠桃园','佛影莲韵'], elevation: {max: 900, ascent: 1200, descent: 1200}, intro: '世界最大火山流纹岩地貌穿越，含悬空索桥与悬瀑'}
+            ],
+            '仙居县(响石山)': [
+                {name: '龙母峰响石山穿越', length: '10.63公里', time: '6小时', startPoint: '溪口张村', endPoint: '百花谷', waypoints: ['玉簪峰','龙母庙','悬空栈道','五福洞','聚仙宫','蘑菇岩','天生桥','观音洞'], elevation: {max: 650, ascent: 800, descent: 800}, intro: '丹霞地貌与道教文化结合，含岩壁攀爬段'}
+            ]
         }
     }
 };
