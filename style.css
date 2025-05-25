@@ -424,3 +424,14 @@ header, footer {
     margin: 0;
     padding: 0;
 }
+
+.footer-link {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #2c7a7b;
+    text-decoration: underline;
+}
