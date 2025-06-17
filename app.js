@@ -337,7 +337,10 @@ function createHikingDetails(hiking) {
         <p><strong>途径点:</strong> ${hiking.waypoints.join(' → ')}</p>
         <p class="hike-intro"><strong>简介:</strong> ${hiking.intro}</p>
         <div class="hike-links">
-            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}轨迹下载</a>
+          <strong>GPS轨迹下载:</strong> 
+            <a href="https://www.2bulu.com/track/search-${hiking.name}.htm" target="_blank">两步路${hiking.name}GPS轨迹</a>
+            <a href="https://www.foooooot.com/search/trip/all/1/all/time/descent/?keyword=${hiking.name}" target="_blank">六只脚${hiking.name}GPS轨迹</a>
+            <strong>网友视频分享:</strong>
             <a href="https://www.douyin.com/search/${hiking.name}" target="_blank">抖音${hiking.name}视频</a>
             <a href="https://www.xiaohongshu.com/search_result?keyword=${hiking.name}" target="_blank">小红书${hiking.name}分享</a>
             <a href="https://search.bilibili.com/all?keyword=${hiking.name}" target="_blank">哔哩哔哩${hiking.name}视频</a>
