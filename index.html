@@ -1,45 +1,52 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50%' y='50%' font-size='95' text-anchor='middle' dominant-baseline='middle' transform='translate(0,5)'>🖼️</text></svg>">
-    <title>如野户外 ruhike.com 徒步路线,古道,越野跑,轨迹</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="全球徒步路线深度介绍与轨迹导航">
+  <meta name="keywords" content="徒步,徒步路线,轨迹导航,户外,登山,ruhike">
+  <meta property="og:title" content="如野户外：户外徒步路线导航 ruhike.com">
+  <meta property="og:description" content="全球徒步路线深度介绍与轨迹导航">
+  <!-- DNS 预解析 -->
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://server.arcgisonline.com">
+  <!-- 预连接 -->
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
+  <title>如野户外：户外徒步路线导航 ruhike.com</title>
 </head>
 <body>
-    <header>
-        <h1>如野户外 <small><small>山不在高有</small><b><sup>仙</sup></b><small>则名</small></small></h1>
+  <div id="app">
+    <header class="header">
+      <a href="/" class="header__logo">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <polygon points="2,28 16,4 30,28" fill="var(--color-primary)"/>
+          <polygon points="10,28 16,12 22,28" fill="var(--color-primary-light)"/>
+        </svg>
+        <span class="header__brand">如野户外(测试中...)</span>
+      </a>
+      <nav class="header__nav" id="mainNav">
+        <a href="?country=china" class="header__nav-link" data-nav="china">中国</a>
+        <a href="?continent=world" class="header__nav-link" data-nav="world">世界</a>
+        <a href="?difficulty=all" class="header__nav-link" data-nav="difficulty">难度</a>
+        <a href="?tag=all" class="header__nav-link" data-nav="tag">标签</a>
+      </nav>
+      <button class="header__hamburger" id="hamburgerBtn" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="切换主题"></button>
     </header>
-
-    <div class="search-box">
-        <input type="text" placeholder="道友要去江浙皖哪座山历练？">
-    </div>
-
-    <div class="breadcrumb">
-        <a href="#">首页</a>
-    </div>
-    
-    <div class="content" id="content">
-        <!-- 内容将通过JavaScript动态加载 -->
-    </div>
-    
-    <footer>
-        <p>© 2004-2025 如野户外 ruhike.com 江浙皖单日徒步路线  <a href="https://datubu.com" target="_blank" class="footer-link">全球多日徒步路线</a></p>
+    <nav class="breadcrumb-bar" id="breadcrumbBar"></nav>
+    <main class="main"></main>
+    <footer class="footer">
+      <p>&copy; 2026 如野户外 ruhike.com</p>
+      <p>山不在高，有仙则名。</p>
+      <p><a href="/sitemap">网站地图</a></p>
     </footer>
-    
-    <script src="data.js"></script>
-    <script src="app.js"></script>
-
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?debb632d0c7955e024fc73b09f08f01c";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
-
+  </div>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

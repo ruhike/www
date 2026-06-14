@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "xihu-biaoyi",
+    "name": "西湖标毅线",
+    "nameEn": "West Lake Biaoyi Trail",
+    "continent": "asia",
+    "country": "china",
+    "province": "zhejiang",
+    "city": "hangzhou",
+    "district": "xihu",
+    "difficulty": 5,
+    "distance": 25.4,
+    "ascent": 1858,
+    "duration": "1天",
+    "maxAltitude": 411,
+    "tags": ["西湖", "杭州", "城市徒步", "群山", "经典", "北高峰", "财神庙", "十里琅珰", "毕业路线", "一日穿越"],
+    "feature": "杭州户外圈的「毕业路线」——25公里贯穿西湖群山山脊",
+    "heat": 95
+  },
+  {
+    "slug": "shiji-gongyuan",
+    "name": "上海浦东世纪公园",
+    "nameEn": "Shanghai Century Park",
+    "continent": "asia",
+    "country": "china",
+    "province": "shanghai",
+    "city": "shanghai",
+    "district": "pudong",
+    "difficulty": 1,
+    "distance": 6.1,
+    "ascent": 269,
+    "duration": "1-2小时",
+    "maxAltitude": 18,
+    "tags": ["上海", "浦东", "世纪公园", "城市公园", "休闲徒步", "亲子", "跑步", "环形路线"],
+    "feature": "上海市中心最大的城市生态公园，环湖步道绿树成荫",
+    "heat": 60
+  }
+]
