@@ -9,6 +9,46 @@ let map = null;
 let polyline = null;
 let markersLayer = null;
 let mapInitialized = false;
+let currentTileLayer = null;
+let layerControl = null;
+
+// 底图图层定义（函数工厂，支持 TileLayer 和 LayerGroup）
+const BASEMAPS = {
+  'ESRI卫星图': () => L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom: 19 }
+  ),
+  'ESRI卫星+标注': () => L.layerGroup([
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
+  ]),
+  'OpenTopoMap': () => L.tileLayer(
+    'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    { maxZoom: 17 }
+  ),
+  'ESRI地形图': () => L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    { maxZoom: 19 }
+  ),
+  'OpenStreetMap': () => L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { maxZoom: 19 }
+  ),
+  'CartoDB': () => L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    { maxZoom: 19 }
+  ),
+};
+
+// 图层版权映射
+const BASEMAP_ATTR = {
+  'ESRI卫星图': 'Esri',
+  'ESRI卫星+标注': 'Esri',
+  'OpenTopoMap': '© OTM',
+  'ESRI地形图': 'Esri',
+  'OpenStreetMap': '© OSM',
+  'CartoDB': '© CartoDB',
+};
 
 // 全屏导航状态
 let navMode = false;
@@ -69,18 +109,19 @@ function injectStyles() {
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 5px;
+  padding: 7px 14px;
   background: var(--color-primary, #2d6a4f);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   transition: background 0.2s, transform 0.15s;
   font-family: system-ui, -apple-system, sans-serif;
+  white-space: nowrap;
 }
 .map-fullscreen-btn:hover {
   background: var(--color-primary-dark, #1b4332);
@@ -88,6 +129,19 @@ function injectStyles() {
 }
 .map-fullscreen-btn:active { transform: translateY(0); }
 .map-fullscreen-btn svg { flex-shrink: 0; }
+
+/* 小屏幕：全屏按钮缩小 */
+@media (max-width: 480px) {
+  .map-fullscreen-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    gap: 4px;
+    top: 6px;
+    right: 6px;
+    border-radius: 5px;
+  }
+  .map-fullscreen-btn svg { width: 14px; height: 14px; }
+}
 
 /* 全屏模式地图 */
 .trail-map:fullscreen { height: 100vh; border-radius: 0; }
@@ -101,8 +155,8 @@ function injectStyles() {
   z-index: 1000;
   background: rgba(0,0,0,0.78);
   color: #fff;
-  padding: 10px 14px 12px;
-  font-size: 13px;
+  padding: 8px 10px 10px;
+  font-size: 12px;
   font-family: system-ui, -apple-system, sans-serif;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -111,47 +165,47 @@ function injectStyles() {
 .nav-panel__row {
   display: flex;
   justify-content: space-around;
-  gap: 6px;
+  gap: 4px;
 }
 .nav-panel__row--main {
-  margin-bottom: 6px;
-  padding-bottom: 6px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
   border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 .nav-panel__row--sub {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .nav-panel__row--pos {
-  font-size: 11px;
+  font-size: 10px;
   opacity: 0.7;
   justify-content: center;
-  gap: 6px;
-  margin-top: 4px;
-  padding-top: 4px;
+  gap: 4px;
+  margin-top: 3px;
+  padding-top: 3px;
   border-top: 1px solid rgba(255,255,255,0.1);
 }
 .nav-panel__item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-width: 70px;
+  gap: 1px;
+  min-width: 55px;
   flex: 1;
 }
 .nav-panel__label {
-  font-size: 10px;
+  font-size: 9px;
   opacity: 0.6;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
 }
 .nav-panel__val {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
 }
 .nav-panel__row--main .nav-panel__val {
-  font-size: 16px;
+  font-size: 14px;
   color: #4fc3f7;
 }
 
@@ -180,6 +234,96 @@ function injectStyles() {
   position: fixed !important; top: 0 !important; left: 0 !important;
   width: 100vw !important; height: 100vh !important;
   z-index: 9999 !important; border-radius: 0 !important;
+}
+
+/* 精简版权信息 */
+.map-attribution {
+  padding: 1px 6px !important;
+  background: rgba(255,255,255,0.7) !important;
+  font-size: 9px !important;
+  line-height: 1.3 !important;
+  border-radius: 2px !important;
+  margin: 0 !important;
+  color: #666 !important;
+  pointer-events: none;
+  max-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-theme="dark"] .map-attribution {
+  background: rgba(0,0,0,0.55) !important;
+  color: #999 !important;
+}
+
+/* 图层切换控件 */
+.trail-map .leaflet-control-layers {
+  border: 1px solid var(--color-border, #ddd) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+  background: #fff !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+}
+[data-theme="dark"] .trail-map .leaflet-control-layers {
+  background: #2a2a2a !important;
+  border-color: #444 !important;
+}
+.trail-map .leaflet-control-layers-toggle {
+  width: 30px !important;
+  height: 30px !important;
+  background-size: 18px 18px !important;
+  border-radius: 5px !important;
+}
+.trail-map .leaflet-control-layers-expanded {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+}
+.trail-map .leaflet-control-layers-overlays {
+  display: none;
+}
+.trail-map .leaflet-control-layers label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  color: #333 !important;
+}
+[data-theme="dark"] .trail-map .leaflet-control-layers label {
+  color: #ddd !important;
+}
+.trail-map .leaflet-control-layers-selector {
+  margin: 0 !important;
+  accent-color: var(--color-primary, #2d6a4f);
+}
+
+/* 导航模式下图层控件上移至缩放控件下方 */
+.trail-map--nav-active .leaflet-bottom.leaflet-left {
+  bottom: auto !important;
+  top: 80px !important;
+}
+
+/* 小屏幕：缩放控件与图层控件缩小 */
+@media (max-width: 480px) {
+  .trail-map .leaflet-control-zoom a {
+    width: 26px !important;
+    height: 26px !important;
+    line-height: 26px !important;
+    font-size: 14px !important;
+  }
+  .trail-map .leaflet-control-layers-toggle {
+    width: 26px !important;
+    height: 26px !important;
+    background-size: 15px 15px !important;
+  }
+  .trail-map .leaflet-control-layers-expanded {
+    font-size: 11px !important;
+  }
+  .trail-map .leaflet-control-layers label {
+    font-size: 11px !important;
+  }
 }
 `;
   document.head.appendChild(style);
@@ -354,14 +498,33 @@ async function renderMap(container, slug, overview, fullFile, waypoints) {
   // 初始化地图
   map = L.map(container, {
     zoomControl: true,
-    attributionControl: true
+    attributionControl: false,
   });
 
-  // 卫星底图
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    maxZoom: 19
+  // 构建底图图层对象
+  const baseLayers = {};
+  for (const [name, factory] of Object.entries(BASEMAPS)) {
+    baseLayers[name] = factory();
+  }
+
+  // 默认 ESRI 卫星图
+  currentTileLayer = baseLayers['ESRI卫星图'];
+  currentTileLayer.addTo(map);
+
+  // 图层切换控件
+  layerControl = L.control.layers(baseLayers, null, {
+    position: 'bottomleft',
+    collapsed: true,
   }).addTo(map);
+
+  // 精简版权信息
+  updateAttribution('ESRI卫星图');
+
+  // 切换图层时更新版权
+  map.on('baselayerchange', function (e) {
+    currentTileLayer = e.layer;
+    updateAttribution(e.name);
+  });
 
   // 渲染 overview 轨迹线
   const latLngs = toLatLngs(overview);
@@ -473,7 +636,7 @@ function setupFullscreenNav(container) {
   navFullscreenBtn = document.createElement('button');
   navFullscreenBtn.id = 'mapFullscreenBtn';
   navFullscreenBtn.className = 'map-fullscreen-btn';
-  navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1h5M1 1v5M1 1l5 5M15 15h-5M15 15v-5M15 15l-5-5"/></svg><span>全屏导航</span>';
+  navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1h5M1 1v5M1 1l5 5M15 15h-5M15 15v-5M15 15l-5-5"/></svg><span>全屏开启导航</span>';
   navFullscreenBtn.addEventListener('click', () => toggleFullscreen(container));
   container.appendChild(navFullscreenBtn);
 
@@ -534,7 +697,7 @@ function activateFallbackFullscreen(container) {
   closeBtn.id = 'mapFullscreenFallbackClose';
   closeBtn.className = 'map-fullscreen-btn';
   closeBtn.style.cssText = 'top: 50px;';
-  closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>退出导航</span>';
+  closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>退出全屏导航</span>';
   closeBtn.addEventListener('click', () => exitFullscreen(container));
   container.appendChild(closeBtn);
 
@@ -615,6 +778,11 @@ function activateNavigation(container) {
   navStartTime = Date.now();
   navLastPosIndex = -1;
 
+  // 导航模式下：使用 Leaflet API 将图层控件移到顶部
+  if (layerControl && map) {
+    layerControl.setPosition('topleft');
+  }
+
   // 保存当前地图范围，用于退出时恢复
   if (map) {
     mapOriginalBounds = map.getBounds();
@@ -638,9 +806,9 @@ function updateFullscreenBtn(isActive) {
   if (!navFullscreenBtn) return;
 
   if (isActive) {
-    navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>退出导航</span>';
+    navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>退出全屏导航</span>';
   } else {
-    navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1h5M1 1v5M1 1l5 5M15 15h-5M15 15v-5M15 15l-5-5"/></svg><span>全屏导航</span>';
+    navFullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1h5M1 1v5M1 1l5 5M15 15h-5M15 15v-5M15 15l-5-5"/></svg><span>全屏开启导航</span>';
   }
 }
 
@@ -929,6 +1097,19 @@ function findNearestTrackPoint(userLatLng) {
 function stopNavigation() {
   navStartTime = 0;
   navLastPosIndex = -1;
+
+  // 退出导航模式：将图层控件容器移回底部
+  if (map) {
+    const container = map.getContainer();
+    if (container) {
+      const layerControlContainer = container.querySelector('.leaflet-bottom.leaflet-left');
+      if (layerControlContainer) {
+        layerControlContainer.style.bottom = '';
+        layerControlContainer.style.top = '';
+      }
+    }
+  }
+
   // 停止定位监听
   if (navWatchId != null) {
     navigator.geolocation.clearWatch(navWatchId);
@@ -956,6 +1137,30 @@ function stopNavigation() {
 // ==================== 全屏导航模式结束 ====================
 
 // ==================== 工具函数 ====================
+
+/**
+ * 精简版权信息（自定义 attribution 控件）
+ */
+let _attributionEl = null;
+
+function updateAttribution(layerName) {
+  const text = BASEMAP_ATTR[layerName] || '';
+
+  if (!_attributionEl) {
+    const AttributionControl = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd: function () {
+        const el = L.DomUtil.create('div', 'map-attribution');
+        el.innerHTML = text;
+        _attributionEl = el;
+        return el;
+      },
+    });
+    new AttributionControl().addTo(map);
+  } else {
+    _attributionEl.innerHTML = text;
+  }
+}
 
 /**
  * Haversine 公式计算两点距离（米）
