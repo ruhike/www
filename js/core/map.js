@@ -12,6 +12,12 @@ let mapInitialized = false;
 let currentTileLayer = null;
 let layerControl = null;
 
+// 导航状态
+let navPaused = false;
+let navVoiceEnabled = false;
+let lastVoiceTime = 0;
+let lastWaypointIndex = -1;
+
 // 底图图层定义（函数工厂，支持 TileLayer 和 LayerGroup）
 const BASEMAPS = {
   'ESRI卫星图': () => L.tileLayer(
@@ -155,7 +161,7 @@ function injectStyles() {
   z-index: 1000;
   background: rgba(0,0,0,0.78);
   color: #fff;
-  padding: 8px 10px 10px;
+  padding: 8px 10px;
   font-size: 12px;
   font-family: system-ui, -apple-system, sans-serif;
   backdrop-filter: blur(6px);
@@ -164,33 +170,35 @@ function injectStyles() {
 .map-nav-panel--warning { background: rgba(231, 76, 60, 0.85); }
 .nav-panel__row {
   display: flex;
-  justify-content: space-around;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.nav-panel__row--main {
-  margin-bottom: 4px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(255,255,255,0.15);
-}
-.nav-panel__row--sub {
-  margin-bottom: 2px;
-}
-.nav-panel__row--pos {
-  font-size: 10px;
-  opacity: 0.7;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 3px;
-  padding-top: 3px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+.nav-panel__row::-webkit-scrollbar {
+  display: none;
 }
 .nav-panel__item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  min-width: 55px;
-  flex: 1;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.nav-panel__item--highlight {
+  padding: 4px 8px;
+  background: rgba(79, 195, 247, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(79, 195, 247, 0.4);
+}
+.nav-panel__item--highlight .nav-panel__val {
+  font-size: 14px;
+  color: #4fc3f7;
+  font-weight: 800;
 }
 .nav-panel__label {
   font-size: 9px;
@@ -200,13 +208,38 @@ function injectStyles() {
   white-space: nowrap;
 }
 .nav-panel__val {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
-.nav-panel__row--main .nav-panel__val {
-  font-size: 14px;
-  color: #4fc3f7;
+.nav-panel__controls {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.nav-control-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.nav-control-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+.nav-control-btn--active {
+  background: #4fc3f7;
+}
+.nav-control-btn--paused {
+  background: #ff9800;
 }
 
 /* 用户位置脉冲标记 */
@@ -821,39 +854,67 @@ function createNavPanel(container) {
   navPanel = document.createElement('div');
   navPanel.className = 'map-nav-panel';
   navPanel.innerHTML = `
-    <div class="nav-panel__row nav-panel__row--main">
+    <div class="nav-panel__row">
       <div class="nav-panel__item">
-        <span class="nav-panel__label">已用时间</span>
-        <span class="nav-panel__val" id="navElapsed">00:00</span>
+        <span class="nav-panel__label">上点</span>
+        <span class="nav-panel__val" id="navPrevWp">--</span>
       </div>
       <div class="nav-panel__item">
-        <span class="nav-panel__label">剩余距离</span>
-        <span class="nav-panel__val" id="navRemainDist">-- km</span>
+        <span class="nav-panel__label">距上点</span>
+        <span class="nav-panel__val" id="navDistPrevWp">--m</span>
+      </div>
+      <button class="nav-control-btn" id="navPauseBtn" title="暂停导航">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <rect x="4" y="3" width="3" height="10" rx="1"/>
+          <rect x="9" y="3" width="3" height="10" rx="1"/>
+        </svg>
+      </button>
+      <div class="nav-panel__item nav-panel__item--highlight">
+        <span class="nav-panel__label">偏移距</span>
+        <span class="nav-panel__val" id="navDistTrack">--m</span>
+      </div>
+      <button class="nav-control-btn" id="navVoiceBtn" title="语音播报">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 2L4 6H2v4h2l4 4V2z"/>
+          <path d="M11 8a3 3 0 0 0-1.5-2.6v5.2A3 3 0 0 0 11 8z"/>
+        </svg>
+      </button>
+      <div class="nav-panel__item">
+        <span class="nav-panel__label">距下点</span>
+        <span class="nav-panel__val" id="navDistNextWp">--m</span>
       </div>
       <div class="nav-panel__item">
-        <span class="nav-panel__label">预计剩余</span>
-        <span class="nav-panel__val" id="navRemainTime">--</span>
+        <span class="nav-panel__label">下点</span>
+        <span class="nav-panel__val" id="navNextWp">--</span>
       </div>
-    </div>
-    <div class="nav-panel__row nav-panel__row--sub">
-      <div class="nav-panel__item">
-        <span class="nav-panel__label">已完成爬升</span>
-        <span class="nav-panel__val" id="navDoneAscent">-- m</span>
-      </div>
-      <div class="nav-panel__item">
-        <span class="nav-panel__label">剩余爬升</span>
-        <span class="nav-panel__val" id="navRemainAscent">-- m</span>
-      </div>
-      <div class="nav-panel__item">
-        <span class="nav-panel__label">距轨迹</span>
-        <span class="nav-panel__val" id="navDistTrack">-- m</span>
-      </div>
-    </div>
-    <div class="nav-panel__row nav-panel__row--pos">
-      <span class="nav-panel__label">当前位置</span>
-      <span class="nav-panel__val" id="navPosition">等待定位...</span>
     </div>`;
   container.appendChild(navPanel);
+
+  // 绑定按钮事件
+  const pauseBtn = document.getElementById('navPauseBtn');
+  const voiceBtn = document.getElementById('navVoiceBtn');
+
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', () => {
+      if (navPaused) {
+        resumeNavigation();
+      } else {
+        pauseNavigation();
+      }
+    });
+  }
+
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', () => {
+      navVoiceEnabled = !navVoiceEnabled;
+      voiceBtn.classList.toggle('nav-control-btn--active', navVoiceEnabled);
+      if (navVoiceEnabled) {
+        speak('语音播报已开启');
+      } else {
+        speak('语音播报已关闭');
+      }
+    });
+  }
 }
 
 /**
@@ -885,7 +946,7 @@ function startNavigation() {
  * 处理位置更新
  */
 function handlePositionUpdate(position) {
-  if (!map) return;
+  if (!map || navPaused) return;
 
   const { latitude, longitude, accuracy, heading } = position.coords;
   const userLatLng = [latitude, longitude];
@@ -902,74 +963,150 @@ function handlePositionUpdate(position) {
     // 更新指引线
     updateGuideLine(userLatLng, nearest.point);
 
-    // 计算方向
-    const bearingToTrack = calcBearing(latitude, longitude, nearest.point[0], nearest.point[1]);
-    const directionText = heading != null
-      ? getRelativeDirection(bearingToTrack, heading)
-      : getCompassDirection(bearingToTrack);
+    // 计算下一个和上一个途经点信息
+    let nextWpName = '--';
+    let distNextWp = '--m';
+    let prevWpName = '--';
+    let distPrevWp = '--m';
 
-    // ---- 导航指标计算 ----
-    const idx = nearest.index;
-    const totalPoints = trackElevationData ? trackElevationData.length : (trackLatLngsForNav ? trackLatLngsForNav.length : 0);
+    if (waypointsForNav && waypointsForNav.length > 0) {
+      // 找到当前最接近的途经点索引
+      let currentWpIdx = 0;
+      let minDist = Infinity;
+      
+      for (let i = 0; i < waypointsForNav.length; i++) {
+        const wp = waypointsForNav[i];
+        const wpLatLng = [wp.lat, wp.lng];
+        const dist = calcDistance(userLatLng, wpLatLng);
+        if (dist < minDist) {
+          minDist = dist;
+          currentWpIdx = i;
+        }
+      }
 
-    // 已用时间
-    const elapsedSec = navStartTime ? Math.floor((Date.now() - navStartTime) / 1000) : 0;
-    const elapsedStr = `${String(Math.floor(elapsedSec / 3600)).padStart(2,'0')}:${String(Math.floor((elapsedSec % 3600) / 60)).padStart(2,'0')}:${String(elapsedSec % 60).padStart(2,'0')}`;
+      // 下一个途经点
+      const nextWpIdx = Math.min(currentWpIdx + 1, waypointsForNav.length - 1);
+      const nextWp = waypointsForNav[nextWpIdx];
+      if (nextWp) {
+        nextWpName = nextWp.name.replace(/^(起点·|进入·|终点·)/, '');
+        const nextWpLatLng = [nextWp.lat, nextWp.lng];
+        const distToNext = calcDistance(userLatLng, nextWpLatLng);
+        distNextWp = distToNext < 1000 ? Math.round(distToNext) + 'm' : (distToNext / 1000).toFixed(1) + 'km';
+      }
 
-    // 已完成距离（从起点到当前点沿轨迹的距离）
-    let doneDist = 0;
-    if (trackLatLngsForNav && idx >= 0) {
-      doneDist = calcTrackDistance(trackLatLngsForNav, 0, idx);
+      // 上一个途经点
+      const prevWpIdx = Math.max(currentWpIdx - 1, 0);
+      const prevWp = waypointsForNav[prevWpIdx];
+      if (prevWp) {
+        prevWpName = prevWp.name.replace(/^(起点·|进入·|终点·)/, '');
+        const prevWpLatLng = [prevWp.lat, prevWp.lng];
+        const distToPrev = calcDistance(userLatLng, prevWpLatLng);
+        distPrevWp = distToPrev < 1000 ? Math.round(distToPrev) + 'm' : (distToPrev / 1000).toFixed(1) + 'km';
+      }
     }
-
-    // 剩余距离
-    let remainDist = 0;
-    if (trackLatLngsForNav && idx >= 0 && idx < totalPoints - 1) {
-      remainDist = calcTrackDistance(trackLatLngsForNav, idx, totalPoints - 1);
-    }
-
-    // 已完成爬升（起点到当前点）
-    let doneAscent = 0;
-    if (trackElevationData && idx >= 0) {
-      doneAscent = calcCumulativeAscent(trackElevationData, 0, idx);
-    }
-
-    // 剩余爬升（当前点到终点）
-    let remainAscent = 0;
-    if (trackElevationData && idx >= 0 && idx < totalPoints - 1) {
-      remainAscent = calcCumulativeAscent(trackElevationData, idx, totalPoints - 1);
-    }
-
-    // 预计剩余时间（基于平均速度 = 已完成距离/已用时间）
-    let remainTimeStr = '--';
-    if (doneDist > 10 && elapsedSec > 30 && remainDist > 0) {
-      const avgSpeed = doneDist / elapsedSec; // m/s
-      const remainSec = remainDist / avgSpeed;
-      const h = Math.floor(remainSec / 3600);
-      const m = Math.floor((remainSec % 3600) / 60);
-      remainTimeStr = h > 0 ? `${h}时${m}分` : `${m}分钟`;
-    } else if (remainDist > 0) {
-      remainTimeStr = '计算中...';
-    }
-
-    // 当前位置文字
-    const posText = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
 
     // 更新导航面板
     updateNavPanel({
-      elapsed: elapsedStr,
-      remainDist: remainDist > 0 ? (remainDist / 1000).toFixed(1) + ' km' : '-- km',
-      remainTime: remainTimeStr,
-      doneAscent: doneAscent > 0 ? doneAscent + ' m' : '-- m',
-      remainAscent: remainAscent > 0 ? remainAscent + ' m' : '-- m',
-      distTrack: distance < 1000 ? Math.round(distance) + ' m' : (distance / 1000).toFixed(2) + ' km',
-      position: posText,
-      direction: directionText,
+      distTrack: distance < 1000 ? Math.round(distance) + 'm' : (distance / 1000).toFixed(2) + 'km',
+      nextWp: nextWpName,
+      distNextWp: distNextWp,
+      prevWp: prevWpName,
+      distPrevWp: distPrevWp,
     });
+
+    // 语音播报
+    if (navVoiceEnabled) {
+      handleVoiceAnnouncements(distance, nearest.index);
+    }
 
     // 地图跟随用户位置
     map.panTo(userLatLng, { animate: true, duration: 0.5 });
   }
+}
+
+/**
+ * 暂停导航
+ */
+function pauseNavigation() {
+  navPaused = true;
+  const pauseBtn = document.getElementById('navPauseBtn');
+  if (pauseBtn) {
+    pauseBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M4 3l10 5-10 5V3z"/>
+      </svg>`;
+    pauseBtn.title = '继续导航';
+    pauseBtn.classList.add('nav-control-btn--paused');
+  }
+}
+
+/**
+ * 继续导航
+ */
+function resumeNavigation() {
+  navPaused = false;
+  const pauseBtn = document.getElementById('navPauseBtn');
+  if (pauseBtn) {
+    pauseBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <rect x="4" y="3" width="3" height="10" rx="1"/>
+        <rect x="9" y="3" width="3" height="10" rx="1"/>
+      </svg>`;
+    pauseBtn.title = '暂停导航';
+    pauseBtn.classList.remove('nav-control-btn--paused');
+  }
+}
+
+/**
+ * 语音播报处理
+ */
+function handleVoiceAnnouncements(distance, trackIndex) {
+  const now = Date.now();
+  // 限制播报频率，至少间隔 3 秒
+  if (now - lastVoiceTime < 3000) return;
+
+  // 偏离轨迹超过 5 米时播报
+  if (distance > 5) {
+    const distanceText = distance < 1000 ? Math.round(distance) + '米' : (distance / 1000).toFixed(1) + '公里';
+    speak(`偏离轨迹${distanceText}`);
+    lastVoiceTime = now;
+    return;
+  }
+
+  // 检查是否接近下一个途经点
+  if (waypointsForNav && waypointsForNav.length > 0) {
+    const nextWaypointIdx = lastWaypointIndex + 1;
+    if (nextWaypointIdx < waypointsForNav.length) {
+      const wp = waypointsForNav[nextWaypointIdx];
+      const wpLatLng = [wp.lat, wp.lng];
+      const distToWp = calcDistance(userLatLng, wpLatLng);
+
+      // 在 50 米内播报下一个途经点
+      if (distToWp < 50 && trackIndex > lastWaypointIndex) {
+        const wpName = wp.name.replace(/^(起点·|进入·|终点·)/, '');
+        speak(`前方到达${wpName}`);
+        lastWaypointIndex = nextWaypointIdx;
+        lastVoiceTime = now;
+      }
+    }
+  }
+}
+
+/**
+ * 语音合成
+ */
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  
+  // 取消之前的播报
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'zh-CN';
+  utterance.rate = 1.0;
+  utterance.volume = 1.0;
+  
+  window.speechSynthesis.speak(utterance);
 }
 
 /**
