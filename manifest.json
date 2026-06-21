@@ -1,9 +1,0 @@
-{
-  "name": "ruhike - 全球徒步路线",
-  "short_name": "ruhike",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#fefae0",
-  "theme_color": "#2d6a4f",
-  "description": "全球徒步路线深度介绍与轨迹导航"
-}
