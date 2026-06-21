@@ -1,0 +1,228 @@
+[
+  {
+    "slug": "huang-pu-jiang-bin-jiang-huan-xian",
+    "name": "黄浦江滨江环线",
+    "nameEn": "Huang Pu Jiang Bin Jiang Huan Xian",
+    "continent": "asia",
+    "country": "china",
+    "province": "shanghai",
+    "city": "shanghai",
+    "district": "pudong",
+    "difficulty": 8,
+    "distance": 55.0,
+    "ascent": 180,
+    "descent": 180,
+    "duration": "12-14小时",
+    "maxAltitude": 28,
+    "minAltitude": 0,
+    "tags": [
+      "上海",
+      "环形路线",
+      "徒步",
+      "滨江",
+      "历史人文",
+      "寺庙道观",
+      "双子山"
+    ],
+    "feature": "世界级滨水徒步线路，串联浦东浦西45公里贯通步道，涵盖工业遗址、现代艺术馆、百年外滩建筑群和生态公园，全线配备标准化骑行道/跑步道/步行道。",
+    "fameReason": "",
+    "history": "",
+    "story": "",
+    "waypoints": [
+      {
+        "name": "杨浦滨江工业带",
+        "description": "杨浦滨江工业带",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "陆家嘴滨江绿地",
+        "description": "陆家嘴滨江绿地",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "南浦大桥观景台",
+        "description": "南浦大桥观景台",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "世博文化公园",
+        "description": "世博文化公园",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "前滩休闲公园",
+        "description": "前滩休闲公园",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "徐汇滨江美术馆群",
+        "description": "徐汇滨江美术馆群",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "卢浦大桥",
+        "description": "卢浦大桥",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "梅赛德斯奔驰文化中心",
+        "description": "梅赛德斯奔驰文化中心",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "远望1号测量船",
+        "description": "远望1号测量船",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "民生码头筒仓艺术中心",
+        "description": "民生码头筒仓艺术中心",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "东昌滨江绿地",
+        "description": "东昌滨江绿地",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "白莲泾公园",
+        "description": "白莲泾公园",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      }
+    ],
+    "track": {
+      "overview": [],
+      "fullFile": null
+    }
+  },
+  {
+    "slug": "song-jun-jiu-feng",
+    "name": "松郡九峰",
+    "nameEn": "Song Jun Jiu Feng",
+    "continent": "asia",
+    "country": "china",
+    "province": "shanghai",
+    "city": "shanghai",
+    "district": "songjiang",
+    "difficulty": 4,
+    "distance": 20.0,
+    "ascent": 650,
+    "descent": 600,
+    "duration": "8-10小时",
+    "maxAltitude": 99,
+    "minAltitude": 0,
+    "tags": [
+      "上海",
+      "古道",
+      "徒步",
+      "竹林",
+      "历史人文",
+      "寺庙道观",
+      "佘山"
+    ],
+    "feature": "上海唯一山岳徒步线路，串联松江九座海拔百米山峰，途经北宋护珠斜塔(倾斜度7.1°超比萨斜塔)、明代采石深坑、竹林古道等景观。",
+    "fameReason": "",
+    "history": "",
+    "story": "",
+    "waypoints": [
+      {
+        "name": "佘山天文台",
+        "description": "佘山天文台",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "天马山护珠斜塔",
+        "description": "天马山护珠斜塔",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "横云山断崖",
+        "description": "横云山断崖",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "辰山植物园外围",
+        "description": "辰山植物园外围",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "机山竹林秘境",
+        "description": "机山竹林秘境",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "凤凰山古寺遗址",
+        "description": "凤凰山古寺遗址",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "厍公山观景台",
+        "description": "厍公山观景台",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "薛山松林步道",
+        "description": "薛山松林步道",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "钟贾山深坑",
+        "description": "钟贾山深坑",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      },
+      {
+        "name": "小昆山二陆草堂",
+        "description": "小昆山二陆草堂",
+        "altitude": 0,
+        "surface": "mixed",
+        "distanceFromStart": 0
+      }
+    ],
+    "track": {
+      "overview": [],
+      "fullFile": null
+    }
+  }
+]
