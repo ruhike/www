@@ -21,9 +21,6 @@ class HashSearch {
     if (!HashSearch._instance) { HashSearch._instance = new HashSearch(); }
     return HashSearch._instance;
   }
-  static resetInstance() {
-    if (HashSearch._instance) { HashSearch._instance.clearAllCache(); HashSearch._instance = null; }
-  }
   _restoreFromStorage() {
     try {
       const keysToRemove = [];
@@ -49,17 +46,6 @@ class HashSearch {
     try {
       const entry = { data, timestamp: Date.now(), version: CACHE_VERSION };
       localStorage.setItem(this._storageKey(url), JSON.stringify(entry));
-    } catch { /* silent */ }
-  }
-  _removeFromStorage(url) { try { localStorage.removeItem(this._storageKey(url)); } catch { /* silent */ } }
-  _clearAllStorage() {
-    try {
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(STORAGE_PREFIX)) keysToRemove.push(key);
-      }
-      for (const key of keysToRemove) localStorage.removeItem(key);
     } catch { /* silent */ }
   }
   async _fetch(url) {
@@ -96,32 +82,8 @@ class HashSearch {
       throw new Error(`HashSearch request failed for "${url}": ${err.message}`);
     }
   }
-  async prefetch(url) {
-    try {
-      const memEntry = this._cache.get(url);
-      if (memEntry && !this._isExpired(memEntry)) return;
-      try {
-        const raw = localStorage.getItem(this._storageKey(url));
-        if (raw) {
-          const storageEntry = JSON.parse(raw);
-          if (storageEntry.version === CACHE_VERSION && storageEntry.data !== undefined
-              && Date.now() - storageEntry.timestamp <= this._cacheTTL) {
-            this._cache.set(url, { data: storageEntry.data, timestamp: storageEntry.timestamp });
-            return;
-          }
-        }
-      } catch { /* silent */ }
-      const data = await this._fetch(url);
-      this._cache.set(url, { data, timestamp: Date.now() });
-      this._writeToStorage(url, data);
-    } catch { /* silent */ }
-  }
-  setCache(url, data) { this._cache.set(url, { data, timestamp: Date.now() }); this._writeToStorage(url, data); }
-  clearCache(url) { this._cache.delete(url); this._removeFromStorage(url); }
-  clearAllCache() { this._cache.clear(); this._clearAllStorage(); }
 }
 
-window.HashSearch = HashSearch;
 export { HashSearch };
 
 // ===== 共享工具函数 =====
@@ -160,19 +122,19 @@ export function speak(text) {
 // ===== 难度等级定义（静态数据） =====
 
 export const DIFFICULTIES = [
-  { level: 1,  name: '炼气期', icon: 'qi',     description: '轻松休闲，适合全家出游', distanceRange: '0-5km',     ascentRange: '0-200m' },
-  { level: 2,  name: '筑基期', icon: 'base',   description: '初级入门，略有起伏',     distanceRange: '5-10km',    ascentRange: '200-500m' },
-  { level: 3,  name: '金丹期', icon: 'gold',   description: '中级起步，有一定挑战',   distanceRange: '10-15km',   ascentRange: '500-800m' },
-  { level: 4,  name: '元婴期', icon: 'yuan',   description: '中级进阶，需要一定体能', distanceRange: '15-20km',   ascentRange: '800-1200m' },
-  { level: 5,  name: '化神期', icon: 'hua',    description: '中级偏难，考验毅力',     distanceRange: '20-30km',   ascentRange: '1200-1800m' },
-  { level: 6,  name: '炼虚期', icon: 'lian',   description: '高级入门，专业级',       distanceRange: '30-40km',   ascentRange: '1800-2500m' },
-  { level: 7,  name: '合体期', icon: 'he',     description: '高级偏难，高海拔挑战',   distanceRange: '40-50km',   ascentRange: '2500-3500m' },
-  { level: 8,  name: '大乘期', icon: 'da',     description: '顶级难度，极限挑战',     distanceRange: '50-70km',   ascentRange: '3500-4500m' },
-  { level: 9,  name: '真仙境', icon: 'zhen',   description: '超长距离，需要极强体能', distanceRange: '70-100km',  ascentRange: '4500-6000m' },
-  { level: 10, name: '金仙境', icon: 'jin',    description: '百公里级，极端挑战',     distanceRange: '100-150km', ascentRange: '6000-8000m' },
-  { level: 11, name: '太乙境', icon: 'tai',    description: '超越极限，史诗级',       distanceRange: '150-200km', ascentRange: '8000-10000m' },
-  { level: 12, name: '大罗境', icon: 'da-luo', description: '传奇级徒步',             distanceRange: '200-300km', ascentRange: '10000-15000m' },
-  { level: 13, name: '道祖境', icon: 'dao',    description: '神级路线，此生必走',     distanceRange: '>300km',    ascentRange: '>15000m' },
+  { level: 1,  name: '炼气期', icon: 'qi',     description: '轻松休闲，适合全家出游', distanceRange: '0-6km',      ascentRange: '0-300m' },
+  { level: 2,  name: '筑基期', icon: 'base',   description: '初级入门，略有起伏',     distanceRange: '6-12km',     ascentRange: '300-600m' },
+  { level: 3,  name: '金丹期', icon: 'gold',   description: '中级起步，有一定挑战',   distanceRange: '12-18km',    ascentRange: '600-900m' },
+  { level: 4,  name: '元婴期', icon: 'yuan',   description: '中级进阶，需要一定体能', distanceRange: '18-24km',    ascentRange: '900-1200m' },
+  { level: 5,  name: '化神期', icon: 'hua',    description: '中级偏难，考验毅力',     distanceRange: '24-30km',    ascentRange: '1200-1500m' },
+  { level: 6,  name: '炼虚期', icon: 'lian',   description: '高级入门，专业级',       distanceRange: '30-36km',    ascentRange: '1500-1800m' },
+  { level: 7,  name: '合体期', icon: 'he',     description: '高级偏难，高海拔挑战',   distanceRange: '36-42km',    ascentRange: '1800-2100m' },
+  { level: 8,  name: '大乘期', icon: 'da',     description: '顶级难度，极限挑战',     distanceRange: '42-48km',    ascentRange: '2100-2400m' },
+  { level: 9,  name: '真仙境', icon: 'zhen',   description: '超长距离，需要极强体能', distanceRange: '48-54km',    ascentRange: '2400-2700m' },
+  { level: 10, name: '金仙境', icon: 'jin',    description: '百公里级，极端挑战',     distanceRange: '54-60km',    ascentRange: '2700-3000m' },
+  { level: 11, name: '太乙境', icon: 'tai',    description: '超越极限，史诗级',       distanceRange: '60-66km',    ascentRange: '3000-3300m' },
+  { level: 12, name: '大罗境', icon: 'da-luo', description: '传奇级徒步',             distanceRange: '66-72km',    ascentRange: '3300-3600m' },
+  { level: 13, name: '道祖境', icon: 'dao',    description: '神级路线，此生必走',     distanceRange: '>72km',       ascentRange: '>3600m' },
 ];
 
 // ===== 底图图层定义（map.js 和 nav.js 共享） =====
@@ -194,6 +156,12 @@ const PROVINCE_FILES = [
   '/zh/china/jiangsu.json',
   '/zh/china/shanghai.json',
   '/zh/china/anhui.json',
+  '/zh/world/spain.json',
+  '/zh/world/japan.json',
+  '/zh/world/peru.json',
+  '/zh/world/mexico.json',
+  '/zh/world/south-africa.json',
+  '/zh/world/australia.json',
 ];
 
 function extractMeta(trail) {
@@ -214,7 +182,7 @@ export async function loadAllTrails() {
   if (trailsCache) return trailsCache;
   if (loadPromise) return loadPromise;
   loadPromise = (async () => {
-    const hs = window.HashSearch.getInstance();
+    const hs = HashSearch.getInstance();
     const allTrails = [];
     const results = await Promise.all(PROVINCE_FILES.map(file => hs.get(file).catch(() => null)));
     for (const provinceData of results) {
@@ -233,7 +201,17 @@ export async function getTrailBySlug(slug) {
   return trails.find(t => t.slug === slug || t.name === slug) || null;
 }
 
-export function clearTrailsCache() { trailsCache = null; loadPromise = null; }
+/** 根据 entry 元数据加载完整的 trail 数据（含途经点和轨迹） */
+export async function loadEntryTrail(entry) {
+  const hs = HashSearch.getInstance();
+  if (entry.hasTrack) {
+    return hs.get(`/zh/${entry.country}/${entry.slug}.json`);
+  }
+  const base = entry.country === 'china' ? 'china' : 'world';
+  const provincePath = `/zh/${base}/${entry.province}.json`;
+  const provinceTrails = await hs.get(provincePath);
+  return (provinceTrails || []).find(t => t.slug === entry.slug) || null;
+}
 
 // ===== 应用入口 =====
 

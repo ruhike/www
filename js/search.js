@@ -5,26 +5,13 @@
 import { escapeHtml, escapeAttr, loadAllTrails } from './core.js';
 import { navigate } from './router.js';
 
-// ===== 模块级数据缓存 =====
-const CACHE_TTL = 5 * 60 * 1000; // 5 分钟
-let cachedData = null;
-let cacheTimestamp = 0;
-
 export async function render(params) {
   const main = document.querySelector('.main');
   if (!main) return;
 
-  // 使用缓存或重新加载
   let indexData = [];
   try {
-    const now = Date.now();
-    if (cachedData && (now - cacheTimestamp) < CACHE_TTL) {
-      indexData = cachedData.indexData;
-    } else {
-      indexData = await loadAllTrails();
-      cachedData = { indexData };
-      cacheTimestamp = now;
-    }
+    indexData = await loadAllTrails();
   } catch {
     main.innerHTML = '<div class="router-error"><h2>数据加载失败</h2><p>请稍后重试</p></div>';
     return;
@@ -405,10 +392,8 @@ function buildResultCards(trails, query) {
     }).join('');
 
     return `
-      <div class="trail-card">
-        <div class="trail-card-name">
-          <a href="?trail=${encodeURIComponent(trail.name)}">${nameHighlighted}</a>
-        </div>
+      <a href="?trail=${encodeURIComponent(trail.name)}" class="trail-card">
+        <div class="trail-card-name">${nameHighlighted}</div>
         ${trail.nameEn ? `<div class="trail-card-name-en">${escapeHtml(trail.nameEn)}</div>` : ''}
         <div class="trail-card-feature">${featureHighlighted}</div>
         <div class="trail-card-meta">
@@ -417,7 +402,7 @@ function buildResultCards(trails, query) {
           <span class="trail-card-distance">${trail.duration || ''}</span>
         </div>
         ${tagsHtml ? `<div class="trail-card-tags">${tagsHtml}</div>` : ''}
-      </div>`;
+      </a>`;
   }).join('');
 
   return `

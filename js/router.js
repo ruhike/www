@@ -99,7 +99,7 @@ export function buildGeoPath(geo, includeDistrict = false) {
 }
 
 /** 根据 URL params 对象构建地理层级路径 */
-export function buildGeoPathFromParams(params) {
+function buildGeoPathFromParams(params) {
   const slugs = [];
   let lastKey = null;
 
@@ -185,7 +185,7 @@ function parseSearchFromUrl(urlStr) {
 }
 
 /** 解析 URL 查询字符串，返回 { page, params } 对象 */
-export function parseParams() {
+function parseParams() {
   const params = parseSearchFromUrl(window.location.search);
   return parseParamsFromObj(params);
 }
@@ -293,6 +293,7 @@ async function renderPage(page, params) {
       </div>`;
     updateBreadcrumb(page, params);
   }
+  updateMobileNav(page);
 }
 
 /** 编程式导航 */
@@ -324,7 +325,7 @@ function handleRoute() {
 }
 
 /** 初始化路由 */
-export function initRouter(containerSelector) {
+export function initRouter() {
   handleRoute();
 
   window.addEventListener('popstate', () => {
@@ -377,7 +378,7 @@ function parseParamsFromUrl(urlStr) {
 
 const preloadedPages = new Set();
 
-export function preloadPage(pageName) {
+function preloadPage(pageName) {
   if (!PAGE_LOADERS[pageName] || preloadedPages.has(pageName)) return;
   if (pageModules.has(pageName)) return;
 
@@ -432,4 +433,42 @@ function setupPreload() {
   }, { passive: true });
 
   idlePreload();
+}
+
+function updateMobileNav(page) {
+  const mobileNav = document.querySelector('.mobile-nav');
+  if (!mobileNav) return;
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+
+  if (page === 'nav') {
+    mobileNav.style.display = 'flex';
+  }
+
+  const links = mobileNav.querySelectorAll('.mobile-nav__item');
+  if (!links.length) return;
+  links.forEach(link => link.classList.remove('mobile-nav__item--active'));
+
+  const activeMap = {
+    home: ['home', 'trail', 'difficulty', 'tag'],
+    explore: ['geo', 'country'],
+    nav: ['nav'],
+    search: ['search'],
+  };
+
+  for (const [nav, pages] of Object.entries(activeMap)) {
+    if (pages.includes(page)) {
+      const active = mobileNav.querySelector(`.mobile-nav__item[data-nav="${nav}"]`);
+      if (active) active.classList.add('mobile-nav__item--active');
+      return;
+    }
+  }
+}
+
+export function setMobileNavVisible(visible) {
+  const mobileNav = document.querySelector('.mobile-nav');
+  if (!mobileNav) return;
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  if (!isMobile) return;
+  mobileNav.style.display = visible ? 'flex' : 'none';
 }

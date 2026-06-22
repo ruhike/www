@@ -1,4 +1,4 @@
-/* ===== CSS Variables - Clean White Palette ===== */
+﻿/* ===== CSS Variables - Clean White Palette ===== */
 :root {
   /* Primary green — 唯一强调色 */
   --color-primary: #2d7d46;
@@ -51,6 +51,11 @@
 
   /* Content padding — 移动端更窄 */
   --content-px: clamp(12px, 4vw, 40px);
+
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
 }
 
 /* ===== Dark Mode ===== */
@@ -102,6 +107,7 @@ body {
   color: var(--color-text);
   line-height: 1.55;
   min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -111,6 +117,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 a {
@@ -163,6 +170,7 @@ a:hover {
   font-size: 0.8rem;
   color: var(--color-text-muted);
   overflow-x: auto;
+  
   white-space: nowrap;
 }
 
@@ -191,6 +199,11 @@ a:hover {
   margin-top: calc(var(--header-height) + var(--breadcrumb-height));
   flex: 1;
   padding: var(--space-lg) 0;
+  animation: fadeIn 0.25s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===== Footer ===== */
@@ -331,7 +344,6 @@ a:hover {
 body,
 a,
 .theme-toggle,
-.hamburger-btn,
 .header__nav,
 .header__nav-link {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -403,29 +415,6 @@ a,
 
 .header__hamburger:hover {
   background-color: var(--color-bg-secondary);
-}
-
-/* ===== Hamburger Button (.hamburger-btn) ===== */
-.hamburger-btn {
-  display: none;
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text);
-}
-
-.hamburger-btn:hover {
-  background-color: var(--color-bg-secondary);
-}
-
-.hamburger-btn svg {
-  width: 20px;
-  height: 20px;
 }
 
 /* ===== Router Loading & Error ===== */
@@ -515,83 +504,6 @@ a:focus-visible, button:focus-visible {
   body { background: #fff !important; color: #000 !important; }
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  :root {
-    --header-height: 52px;
-    --breadcrumb-height: 34px;
-    --footer-height: auto;
-  }
-
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.2rem; }
-  h3 { font-size: 1.05rem; }
-
-  .header {
-    padding: 0 var(--space-md);
-  }
-
-  .header__brand {
-    font-size: 1rem;
-  }
-
-  .header__nav-link {
-    padding: 10px 14px;
-    font-size: 0.92rem;
-  }
-
-  .hamburger-btn,
-  .header__hamburger {
-    display: flex;
-  }
-
-  .header__nav {
-    display: none;
-    position: absolute;
-    top: var(--header-height);
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    background-color: var(--color-card-bg);
-    border-bottom: 1px solid var(--color-border);
-    padding: var(--space-sm);
-    gap: 2px;
-    z-index: 999;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  }
-
-  .header__nav--open {
-    display: flex;
-  }
-
-  .theme-toggle {
-    width: 40px;
-    height: 40px;
-  }
-
-  .breadcrumb-bar {
-    font-size: 0.75rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .footer {
-    flex-direction: column;
-    gap: var(--space-xs);
-    padding: var(--space-sm) var(--space-md);
-    text-align: center;
-    font-size: 0.75rem;
-  }
-
-  .legal-container {
-    padding: 0 var(--space-md);
-  }
-
-  .legal-container h1 {
-    font-size: 1.3rem;
-  }
-}
-
 /* ===== 本地导航页面 ===== */
 .nav-page {
   display: flex;
@@ -647,6 +559,7 @@ a:focus-visible, button:focus-visible {
 .nav-page__track-list {
   flex: 1;
   overflow-y: auto;
+  
   padding: 8px;
 }
 
@@ -660,12 +573,16 @@ a:focus-visible, button:focus-visible {
 
 /* ===== 导航页安全警示 ===== */
 .nav-page__warnings {
-  flex-shrink: 0;
-  max-height: 40vh;
-  overflow-y: auto;
-  margin-top: var(--space-sm);
-  border-top: 1px solid var(--color-border);
-  padding: var(--space-sm) 8px;
+  margin: 0 0 var(--space-sm);
+  padding: 0;
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.nav-page__warnings .nav-warning {
+  flex: 1 1 280px;
+  margin-bottom: 0;
 }
 
 .nav-warning {
@@ -747,7 +664,7 @@ a:focus-visible, button:focus-visible {
   justify-content: center;
   padding: var(--space-md);
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  
 }
 
 .nav-consent {
@@ -782,6 +699,7 @@ a:focus-visible, button:focus-visible {
 .nav-consent__body {
   padding: var(--space-md) var(--space-lg);
   overflow-y: auto;
+  
   flex: 1;
   font-size: 0.78rem;
   line-height: 1.7;
@@ -875,6 +793,8 @@ a:focus-visible, button:focus-visible {
 .nav-consent__btn--cancel:hover {
   background: var(--color-border);
 }
+
+
 
 .nav-page__track-item {
   display: flex;
@@ -1031,20 +951,7 @@ a:focus-visible, button:focus-visible {
   flex-shrink: 0;
 }
 
-@media (max-width: 480px) {
-  .nav-page__start-btn {
-    padding: 5px 10px;
-    font-size: 11px;
-    gap: 4px;
-    top: 6px;
-    right: 6px;
-    border-radius: 5px;
-  }
-  .nav-page__start-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-}
+
 
 /* 途经点标记 */
 .nav-wp-marker {
@@ -1067,134 +974,7 @@ a:focus-visible, button:focus-visible {
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 
-/* 导航面板（本地导航页复用） */
-.nav-page .map-nav-panel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(0,0,0,0.78);
-  color: #fff;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-family: system-ui, -apple-system, sans-serif;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.nav-page .nav-panel__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.nav-page .nav-panel__row::-webkit-scrollbar { display: none; }
-
-.nav-page .nav-panel__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.nav-page .nav-panel__item--highlight {
-  padding: 4px 8px;
-  background: rgba(79, 195, 247, 0.2);
-  border-radius: 6px;
-  border: 1px solid rgba(79, 195, 247, 0.4);
-}
-
-.nav-page .nav-panel__item--highlight .nav-panel__val {
-  font-size: 14px;
-  color: #4fc3f7;
-  font-weight: 800;
-}
-
-.nav-page .nav-panel__label {
-  font-size: 9px;
-  opacity: 0.6;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.nav-page .nav-panel__val {
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.nav-page .nav-control-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.nav-page .nav-control-btn:hover { background: rgba(255,255,255,0.25); }
-.nav-page .nav-control-btn--active { background: #4fc3f7; }
-.nav-page .nav-control-btn--paused { background: #ff9800; }
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .nav-page {
-    flex-direction: column;
-    height: calc(100vh - 100px);
-  }
-
-  .nav-page__sidebar {
-    width: 100%;
-    min-width: 0;
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .nav-page__upload {
-    padding: 10px 12px;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .nav-page__upload-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .nav-page__upload-hint {
-    font-size: 10px;
-  }
-
-  .nav-page__track-list {
-    padding: 4px 8px;
-  }
-}
-
-/* ===== 轨迹地图样式 (map.js) ===== */
-.trail-map {
-  position: relative;
-  height: 500px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--color-bg-secondary);
-  isolation: isolate;
-}
+/* ===== 导航信息面板 (全局，供 nav.js / navigation.js 复用) ===== */
 /* 确保 Leaflet 控件不超出地图容器 */
 .trail-map .leaflet-control-container {
   z-index: 1;
@@ -1243,7 +1023,7 @@ a:focus-visible, button:focus-visible {
   position: absolute;
   z-index: 1000;
   top: 10px;
-  right: 192px;
+  right: 225px;
   display: flex;
   flex-direction: row;
   gap: 4px;
@@ -1297,7 +1077,7 @@ a:focus-visible, button:focus-visible {
   position: absolute;
   z-index: 1000;
   top: 10px;
-  right: 150px;
+  right: 175px;
   width: 34px;
   height: 34px;
   display: flex;
@@ -1337,6 +1117,8 @@ a:focus-visible, button:focus-visible {
   color: #ddd;
 }
 
+
+
 /* 缩放控件透明底色 */
 .leaflet-control-zoom a {
   background: rgba(255,255,255,0.55) !important;
@@ -1375,7 +1157,6 @@ a:focus-visible, button:focus-visible {
   overflow-y: hidden;
   white-space: nowrap;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .nav-panel__row::-webkit-scrollbar {
   display: none;
@@ -1409,12 +1190,6 @@ a:focus-visible, button:focus-visible {
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
-}
-.nav-panel__controls {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-  margin-left: auto;
 }
 .nav-control-btn {
   width: 28px;
@@ -2208,6 +1983,10 @@ a:focus-visible, button:focus-visible {
   transform: scale(1.25);
   box-shadow: 0 0 0 3px var(--color-primary);
 }
+.trail-waypoint__body {
+  flex: 1;
+  min-width: 0;
+}
 .trail-waypoint__name {
   font-size: 1rem;
   font-weight: 600;
@@ -2261,7 +2040,7 @@ a:focus-visible, button:focus-visible {
 .trail-elevation__chart {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  
 }
 .elevation-chart {
   width: 100%;
@@ -2314,6 +2093,81 @@ a:focus-visible, button:focus-visible {
 }
 .trail-map.leaflet-container::before {
   content: none;
+}
+.trail-map--empty {
+  height: 120px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-border);
+}
+.trail-map--empty::before {
+  content: none;
+}
+
+/* 轨迹地图标题旁的风险警示徽章 */
+.trail-map-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trail-risk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-warning);
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.trail-risk-badge:hover,
+.trail-risk-badge:focus-visible {
+  background: #d35400;
+}
+
+.trail-risk-popover {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--color-bg);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 100;
+  font-weight: 400;
+  font-size: 0.72rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.trail-risk-badge:hover + .trail-risk-popover,
+.trail-risk-badge:focus-visible + .trail-risk-popover,
+.trail-risk-popover:hover {
+  display: block;
+}
+
+.trail-risk-popover__body {
+  padding: 12px;
+}
+
+.trail-risk-popover__body p {
+  margin-bottom: 6px;
+}
+
+.trail-risk-popover__body p:last-child {
+  margin-bottom: 0;
 }
 .trail-disclaimer {
   margin-top: var(--space-lg);
@@ -2919,12 +2773,15 @@ a:focus-visible, button:focus-visible {
   gap: var(--space-lg);
 }
 .trail-card {
+  display: block;
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: var(--space-lg);
   box-shadow: 0 2px 8px var(--color-card-shadow);
   transition: transform 0.2s, box-shadow 0.2s;
+  color: inherit;
+  text-decoration: none;
 }
 .trail-card:hover {
   transform: translateY(-2px);
@@ -2935,12 +2792,9 @@ a:focus-visible, button:focus-visible {
   font-weight: 600;
   margin-bottom: var(--space-xs);
   line-height: 1.4;
-}
-.trail-card-name a {
   color: var(--color-text);
-  text-decoration: none;
 }
-.trail-card-name a:hover {
+.trail-card:hover .trail-card-name {
   color: var(--color-primary);
 }
 .trail-card-name-en {
@@ -3028,10 +2882,253 @@ mark {
   font-size: 1.0625rem;
 }
 
-/* ===== 响应式: 地图 ===== */
+/* ===== Responsive: 768px ===== */
+.mobile-nav { display: none; }
+
 @media (max-width: 768px) {
+
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  :root {
+    --header-height: 52px;
+    --breadcrumb-height: 34px;
+    --footer-height: auto;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.05rem; }
+
+  .header {
+    padding: 0 var(--space-md);
+    padding-top: var(--safe-area-top);
+  }
+
+  .header__brand {
+    font-size: 1rem;
+  }
+
+  .header__nav-link {
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+
+  .header__hamburger {
+    display: flex;
+  }
+
+  .header__nav {
+    display: none;
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background-color: var(--color-card-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-sm);
+    gap: 2px;
+    z-index: 999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  .header__nav--open {
+    display: flex;
+  }
+
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .breadcrumb-bar {
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    gap: 4px;
+    overflow-x: auto;
+    
+    white-space: nowrap;
+  }
+  .breadcrumb-bar a {
+    padding: 4px 6px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    padding-bottom: var(--safe-area-bottom);
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .legal-container {
+    padding: 0 var(--space-md);
+  }
+
+  .legal-container h1 {
+    font-size: 1.3rem;
+  }
+
+  .legal-page {
+    padding-bottom: calc(var(--space-xl) + 56px + var(--safe-area-bottom));
+  }
+
+  body {
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  input, textarea, [contenteditable] {
+    user-select: text;
+  }
+  button, a, [role="button"], .nav-consent__agree {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  .basemap-btn, .locate-btn, .nav-control-btn, .leaflet-control-zoom a {
+    min-height: auto;
+    min-width: auto;
+  }
+  .nav-consent__btn {
+    min-height: 48px;
+  }
+  .nav-page__upload-btn {
+    min-height: 44px;
+  }
+  .leaflet-control-zoom a {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    line-height: 36px !important;
+    font-size: 18px !important;
+  }
+  .basemap-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .nav-consent-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+  .nav-consent {
+    max-width: 100%;
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  .nav-consent__header {
+    padding: 16px;
+    padding-top: calc(16px + var(--safe-area-top));
+  }
+  .nav-consent__body {
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+  .nav-consent__actions {
+    padding: 12px 16px;
+    padding-bottom: calc(12px + var(--safe-area-bottom));
+  }
+  .nav-consent__agree {
+    font-size: 0.75rem;
+    padding: 10px;
+  }
+
+  .nav-page {
+    flex-direction: column;
+    height: calc(100dvh - 56px);
+  }
+  .nav-page__sidebar {
+    width: 100%;
+    max-height: 42vh;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
+    border-radius: 16px 16px 0 0;
+    order: 1;
+    padding: 0;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  }
+  .nav-page__map-wrap {
+    flex: 1;
+    order: 0;
+  }
+  .nav-page__upload {
+    padding: 8px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nav-page__upload-btn {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  .nav-page__upload-hint {
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+  .nav-page__track-list {
+    max-height: 20vh;
+    overflow-y: auto;
+  }
+  .nav-page__warnings {
+    flex-direction: column;
+  }
+  .nav-page__warnings .nav-warning {
+    flex: 1 1 auto;
+  }
+  .nav-warning__body {
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+  .nav-page__track-item {
+    padding: 10px 12px;
+  }
+  .nav-page--fullscreen-fallback .nav-page__sidebar {
+    display: none;
+  }
+  .nav-page--fullscreen-fallback .nav-page__map-wrap {
+    height: 100vh;
+    height: 100dvh;
+  }
+  .nav-page .map-nav-panel {
+    bottom: calc(56px + var(--safe-area-bottom));
+  }
+
+  .custom-basemap-switcher {
+    right: 185px;
+    top: 8px;
+    gap: 4px;
+  }
+  .basemap-btn {
+    width: 30px;
+    height: 30px;
+    padding: 4px;
+  }
+  .locate-btn {
+    right: 140px;
+    top: 8px;
+  }
+  .map-attribution {
+    font-size: 8px;
+    padding: 2px 4px;
+  }
+
   .trail-map {
-    height: 400px;
+    height: calc(100vh - var(--header-height) - 120px);
+    height: calc(100dvh - var(--header-height) - 120px);
   }
   .trail-title {
     font-size: 1.5rem;
@@ -3076,9 +3173,6 @@ mark {
   .trail-graduation-tip__stats {
     flex-direction: column;
     gap: var(--space-sm);
-  }
-  .trail-map {
-    height: 260px;
   }
   .trail-story h3 {
     font-size: 1.1rem;
@@ -3147,7 +3241,56 @@ mark {
   .home-hero__trail-wrap {
     padding: 10px 12px 6px;
   }
-}
+
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    padding: 6px 0 var(--safe-area-bottom);
+    justify-content: space-around;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .mobile-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 12px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.65rem;
+    font-weight: 500;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mobile-nav__item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mobile-nav__item--active {
+    color: var(--color-primary);
+  }
+  body {
+    padding-bottom: calc(56px + var(--safe-area-bottom));
+  }
+  .footer {
+    padding-bottom: var(--safe-area-bottom);
+  }
+  
 
 @media (max-width: 640px) {
   .geo-cards {
@@ -3176,10 +3319,22 @@ mark {
   }
 }
 
+/* ===== Responsive: 480px ===== */
 @media (max-width: 480px) {
-  .trail-map {
-    height: 300px;
+
+  .nav-page__start-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    gap: 4px;
+    top: 6px;
+    right: 6px;
+    border-radius: 5px;
   }
+  .nav-page__start-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
   .map-fullscreen-btn {
     padding: 5px 10px;
     font-size: 11px;
@@ -3197,7 +3352,7 @@ mark {
     top: 6px;
   }
   .custom-basemap-switcher {
-    right: 160px;
+    right: 190px;
     top: 6px;
     gap: 2px;
     padding: 2px;

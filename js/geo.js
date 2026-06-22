@@ -7,11 +7,6 @@
 import geoHierarchyData from './geo-hierarchy.js';
 import { escapeHtml, matchesGeo, loadAllTrails } from './core.js';
 
-// ===== 模块级数据缓存 =====
-const CACHE_TTL = 5 * 60 * 1000; // 5 分钟
-let cachedData = null;
-let cacheTimestamp = 0;
-
 // ===== 工具函数 =====
 
 /** 从 slug 生成渐变色 */
@@ -46,7 +41,7 @@ function determineLevel(params) {
 }
 
 /** 从路由参数构建地理路径片段 */
-function resolveGeoPath(params, trails) {
+function resolveGeoPath(params) {
   const parts = [];
   if (params.continent && params.continent !== 'world') {
     parts.push(params.continent);
@@ -368,19 +363,8 @@ export async function render(params) {
   renderSkeleton(main, 4);
 
   try {
-
-    let trails, geoHierarchy;
-    const now = Date.now();
-    if (cachedData && (now - cacheTimestamp) < CACHE_TTL) {
-      trails = cachedData.trails;
-      geoHierarchy = cachedData.geoHierarchy;
-    } else {
-      geoHierarchy = geoHierarchyData;
-      trails = await loadAllTrails();
-      cachedData = { trails, geoHierarchy };
-      cacheTimestamp = now;
-    }
-
+    const trails = await loadAllTrails();
+    const geoHierarchy = geoHierarchyData;
     const pathParts = resolveGeoPath(params, trails);
 
     if (level === 'district') {

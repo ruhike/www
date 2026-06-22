@@ -287,26 +287,7 @@ export default {
               },
               "trailCount": 151
             },
-            "yunnan": {
-              "name": "云南",
-              "children": {},
-              "trailCount": 0
-            },
-            "sichuan": {
-              "name": "四川",
-              "children": {},
-              "trailCount": 0
-            },
-            "xizang": {
-              "name": "西藏",
-              "children": {},
-              "trailCount": 0
-            },
-            "beijing": {
-              "name": "北京",
-              "children": {},
-              "trailCount": 0
-            },
+
             "shanghai": {
               "name": "上海",
               "children": {
@@ -327,16 +308,7 @@ export default {
               },
               "trailCount": 2
             },
-            "guangdong": {
-              "name": "广东",
-              "children": {},
-              "trailCount": 0
-            },
-            "fujian": {
-              "name": "福建",
-              "children": {},
-              "trailCount": 0
-            },
+            
             "jiangsu": {
               "name": "江苏省",
               "children": {
@@ -540,9 +512,13 @@ export default {
                       "trailCount": 1
                     },
                     "wuwei": {
-                      "name": "无为市",
-                      "trailCount": 1
-                    }
+                        "name": "无为市",
+                        "trailCount": 1
+                      },
+                      "nanling": {
+                        "name": "南陵县",
+                        "trailCount": 1
+                      }
                   },
                   "trailCount": 3
                 },
@@ -726,62 +702,69 @@ export default {
         },
         "japan": {
           "name": "日本",
-          "children": {}
-        },
-        "nepal": {
-          "name": "尼泊尔",
-          "children": {}
+          "children": {},
+          "trailCount": 1
         }
       },
-      "trailCount": 279
+      "trailCount": 280
     },
     "europe": {
       "name": "欧洲",
       "children": {
-        "france": {
-          "name": "法国",
-          "children": {}
-        },
-        "italy": {
-          "name": "意大利",
-          "children": {}
-        },
-        "switzerland": {
-          "name": "瑞士",
-          "children": {}
+        
+        "spain": {
+          "name": "西班牙",
+          "children": {},
+          "trailCount": 1
         }
-      }
+      },
+      "trailCount": 1
     },
     "africa": {
       "name": "非洲",
-      "children": {}
+      "children": {
+        "south-africa": {
+          "name": "南非",
+          "children": {},
+          "trailCount": 1
+        }
+      },
+      "trailCount": 1
     },
     "north-america": {
       "name": "北美洲",
       "children": {
-        "usa": {
-          "name": "美国",
-          "children": {}
+        
+        "mexico": {
+          "name": "墨西哥",
+          "children": {},
+          "trailCount": 1
         }
-      }
+      },
+      "trailCount": 1
     },
     "south-america": {
       "name": "南美洲",
       "children": {
         "peru": {
           "name": "秘鲁",
-          "children": {}
+          "children": {},
+          "trailCount": 1
         }
-      }
+      },
+      "trailCount": 1
     },
     "oceania": {
       "name": "大洋洲",
       "children": {
-        "new-zealand": {
-          "name": "新西兰",
-          "children": {}
+        
+        "australia": {
+          "name": "澳大利亚",
+          "children": {},
+          "trailCount": 1
         }
-      }
+      },
+      "trailCount": 1
     }
   }
 };

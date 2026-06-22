@@ -3,7 +3,7 @@
  */
 
 import { initBreadcrumb, buildGeoPath, renderBreadcrumb } from './router.js';
-import { escapeHtml, getTrailBySlug, DIFFICULTIES } from './core.js';
+import { escapeHtml, getTrailBySlug, loadEntryTrail, DIFFICULTIES } from './core.js';
 
 export async function render(params) {
   const main = document.querySelector('.main');
@@ -18,26 +18,16 @@ export async function render(params) {
   main.innerHTML = '<div class="router-loading"><div class="router-spinner"></div><p>加载路线数据...</p></div>';
 
   try {
-    const hs = window.HashSearch.getInstance();
-
     const entry = await getTrailBySlug(slug);
     if (!entry) {
       main.innerHTML = `<div class="router-error"><h1>404</h1><p>路线「${escapeHtml(slug)}」未找到</p><a href="/">返回首页</a></div>`;
       return;
     }
 
-    let trail;
-    if (entry.hasTrack) {
-      const trailPath = `/zh/${entry.country}/${entry.slug}.json`;
-      trail = await hs.get(trailPath);
-    } else {
-      const provincePath = `/zh/${entry.country}/${entry.province}.json`;
-      const provinceTrails = await hs.get(provincePath);
-      trail = provinceTrails.find(t => t.slug === entry.slug);
-      if (!trail) {
-        main.innerHTML = `<div class="router-error"><h1>404</h1><p>路线「${escapeHtml(entry.name)}」数据未找到</p><a href="/">返回首页</a></div>`;
-        return;
-      }
+    const trail = await loadEntryTrail(entry);
+    if (!trail) {
+      main.innerHTML = `<div class="router-error"><h1>404</h1><p>路线「${escapeHtml(entry.name)}」数据未找到</p><a href="/">返回首页</a></div>`;
+      return;
     }
 
     const difficulties = DIFFICULTIES;
@@ -82,11 +72,12 @@ export async function render(params) {
 // ---- HTML 构建 ----
 
 function buildPage(trail, diffInfo, slug) {
+  const hasTrack = trail.track?.overview?.length > 0;
   return `
     <div class="page-trail">
       ${buildBasicInfo(trail, diffInfo)}
       ${buildGraduationTip(trail)}
-      ${buildTrailMapSection(slug)}
+      ${buildTrailMapSection(slug, hasTrack)}
       ${trail.waypoints && trail.waypoints.length >= 2 ? buildElevationSection(trail.waypoints) : ''}
       ${trail.waypoints && trail.waypoints.length ? buildWaypointsSection(trail) : ''}
       ${buildDeepContent(trail)}
@@ -217,12 +208,12 @@ function buildWaypointsSection(trail) {
         <h4 class="trail-waypoint__name">
           <span class="trail-waypoint__num">${i + 1}.</span>
           ${escapeHtml(wp.name)}
-          ${buildSurfaceIcon(wp.surface)}
+          ${buildSurfaceIcon(wp.surface || 'mixed')}
         </h4>
-        ${wp.description ? `<p class="trail-waypoint__desc">${escapeHtml(wp.description)}</p>` : ''}
+        <p class="trail-waypoint__desc">${escapeHtml(wp.description || wp.name)}</p>
         <div class="trail-waypoint__meta">
-          ${wp.altitude ? `<span>海拔 ${wp.altitude.toLocaleString()}m</span>` : ''}
-          ${wp.distanceFromStart != null ? `<span>距起点 ${wp.distanceFromStart.toFixed(1)} km</span>` : ''}
+          <span>海拔 ${(wp.altitude || 0).toLocaleString()}m</span>
+          <span>距起点 ${(wp.distanceFromStart || 0).toFixed(1)} km</span>
         </div>
       </div>
     </li>
@@ -257,8 +248,21 @@ function buildElevationSection(waypoints) {
     </section>`;
 }
 
-function buildTrailMapSection(slug) {
-  return `<section class="trail-map-section"><h2>轨迹地图</h2><div id="trail-map" class="trail-map" data-slug="${escapeHtml(slug)}"></div></section>`;
+function buildTrailMapSection(slug, hasTrack) {
+  const riskBadge = `<span class="trail-risk-badge" title="户外安全风险警示" tabindex="0" role="button" aria-label="户外安全风险警示">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  </span>
+  <div class="trail-risk-popover">
+    <div class="trail-risk-popover__body">
+      <p>本网站地图、轨迹导航仅作爱好者参考工具，不提供专业地理信息服务，路径、路况存在数据滞后、信号漂移等误差，不可替代专业登山向导指导。</p>
+      <p>登山、徒步、野山穿越属于高风险活动，参与者需自行承担风险。使用前请自行评估自身体能、配齐全套户外应急装备、购买户外救援保险。</p>
+      <p>因轻信本站路线、地图数据偏差、设备故障、野外突发灾害、准备不足导致迷路、受伤、失联、财产损失等一切后果，网站运营方不承担任何民事赔偿、救援责任。</p>
+    </div>
+  </div>`;
+  if (!hasTrack) {
+    return `<section class="trail-map-section"><h2>轨迹地图 ${riskBadge}</h2><div class="trail-map trail-map--empty">该路段暂无轨迹</div></section>`;
+  }
+  return `<section class="trail-map-section"><h2>轨迹地图 ${riskBadge}</h2><div id="trail-map" class="trail-map" data-slug="${escapeHtml(slug)}"></div></section>`;
 }
 
 function buildDisclaimer() {
@@ -277,8 +281,8 @@ function buildElevationChart(waypoints) {
   const innerW = totalW - padding.left - padding.right;
   const innerH = totalH - padding.top - padding.bottom;
 
-  const dists = waypoints.map(w => w.distanceFromStart);
-  const alts = waypoints.map(w => w.altitude);
+  const dists = waypoints.map(w => w.distanceFromStart || 0);
+  const alts = waypoints.map(w => w.altitude || 0);
   const maxDist = Math.max(...dists) || 1;
   const minAlt = Math.min(...alts);
   const maxAlt = Math.max(...alts);
@@ -301,7 +305,7 @@ function buildElevationChart(waypoints) {
 
   let segmentsHtml = '';
   for (let i = 0; i < waypoints.length - 1; i++) {
-    const s = waypoints[i].surface || 'paved';
+    const s = waypoints[i].surface || 'mixed';
     const color = surfaceColors[s] || '#95a5a6';
     const dash = surfaceDash[s] || '';
     segmentsHtml += `<line x1="${toX(dists[i]).toFixed(1)}" y1="${toY(alts[i]).toFixed(1)}" x2="${toX(dists[i + 1]).toFixed(1)}" y2="${toY(alts[i + 1]).toFixed(1)}" stroke="${color}" stroke-width="2.5"${dash ? ` stroke-dasharray="${dash}"` : ''} stroke-linecap="round"/>`;

@@ -2,14 +2,9 @@
  * 首页模块 - 每日随机推荐 + 核心入口模块
  */
 
-import { escapeHtml, loadAllTrails, DIFFICULTIES } from './core.js';
+import { escapeHtml, loadAllTrails, loadEntryTrail, DIFFICULTIES } from './core.js';
 
-// ===== 模块级数据缓存 =====
-const CACHE_TTL = 5 * 60 * 1000; // 5 分钟
-let cachedData = null;
-let cacheTimestamp = 0;
-
-export async function render(params) {
+export async function render() {
   const main = document.querySelector('.main');
   if (!main) return;
 
@@ -19,20 +14,9 @@ export async function render(params) {
       <p>加载中...</p>
     </div>`;
 
-  const hashSearch = window.HashSearch.getInstance();
-
   try {
-    let trails, difficulties;
-    const now = Date.now();
-    if (cachedData && (now - cacheTimestamp) < CACHE_TTL) {
-      trails = cachedData.trails;
-      difficulties = cachedData.difficulties;
-    } else {
-      trails = await loadAllTrails();
-      difficulties = DIFFICULTIES;
-      cachedData = { trails, difficulties };
-      cacheTimestamp = now;
-    }
+    const trails = await loadAllTrails();
+    const difficulties = DIFFICULTIES;
 
     if (!trails || trails.length === 0) {
       throw new Error('路线数据为空');
@@ -43,15 +27,7 @@ export async function render(params) {
     const difficulty = findDifficulty(difficulties, entry.difficulty);
 
     // 加载推荐路线的完整数据（含途经点和轨迹）
-    let trail;
-    if (entry.hasTrack) {
-      const trailPath = `/zh/${entry.country}/${entry.slug}.json`;
-      trail = await hashSearch.get(trailPath);
-    } else {
-      const provincePath = `/zh/${entry.country}/${entry.province}.json`;
-      const provinceTrails = await hashSearch.get(provincePath);
-      trail = provinceTrails.find(t => t.slug === entry.slug);
-    }
+    const trail = await loadEntryTrail(entry);
 
     // 提取精华景点（名称≠描述的重要地标）
     const highlights = pickHighlights(trail.waypoints || []);
